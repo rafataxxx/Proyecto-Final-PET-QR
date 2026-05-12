@@ -1,19 +1,40 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import String, Boolean
-from sqlalchemy.orm import Mapped, mapped_column
 
 db = SQLAlchemy()
 
 class User(db.Model):
-    id: Mapped[int] = mapped_column(primary_key=True)
-    email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
-    password: Mapped[str] = mapped_column(nullable=False)
-    is_active: Mapped[bool] = mapped_column(Boolean(), nullable=False)
-
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    is_active = db.Column(db.Boolean(), default=True)
+    
+    pets = db.relationship('Pet', backref='owner', lazy=True)
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
-            # do not serialize the password, its a security breach
+            "is_active": self.is_active
+            # ¡Nunca serialices la contraseña por seguridad!
+        }
+
+class Pet(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    breed = db.Column(db.String(100))
+    clinical_info = db.Column(db.Text)
+    photo_url = db.Column(db.String(255))
+    qr_code_url = db.Column(db.String(255))
+    
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+    def serialize(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "breed": self.breed,
+            "clinical_info": self.clinical_info,
+            "photo_url": self.photo_url,
+            "qr_code_url": self.qr_code_url,
+            "owner_id": self.owner_id
         }
