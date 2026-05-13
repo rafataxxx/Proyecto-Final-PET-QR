@@ -19,7 +19,8 @@ app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 # 2. CONFIGURAMOS JWT
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY') 
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL", "sqlite:///test.db")
+# app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
 jwt = JWTManager(app)
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
