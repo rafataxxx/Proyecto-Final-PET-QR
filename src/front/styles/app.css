@@ -246,6 +246,127 @@
   background: #0f0f0f;
   color: rgba(255,255,255,0.45);
   font-size: 0.85rem;
-  padding: 1.5rem 0;
+  padding: 2.5rem 0;
   text-align: center;
+}
+
+/* ─── Auth Modal ──────────────────────────────────────────────── */
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+}
+
+.auth-modal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.auth-modal {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.auth-tabs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1.5px solid #f0f0f0;
+  padding: 0 1.5rem;
+}
+
+.auth-tab {
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  padding: 1rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #999;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+.auth-tab.active {
+  color: #111;
+  border-bottom-color: #ff6b35;
+}
+.auth-tab:hover:not(.active) {
+  color: #555;
+}
+
+.auth-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #aaa;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0.5rem;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.auth-close:hover { color: #333; }
+
+.auth-body {
+  padding: 1.75rem 1.75rem 2rem;
+}
+
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #111;
+  margin-bottom: 0.25rem;
+}
+
+.auth-subtitle {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+
+.auth-error {
+  background: #fff0ee;
+  border: 1px solid #ffcdc4;
+  color: #c0392b;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+/* Inline text link (toggle between tabs) */
+.btn-link-orange {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #ff6b35;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-size: inherit;
+}
+.btn-link-orange:hover { color: #e85c28; }
+
+/* ─── Smooth scroll ───────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
 }

@@ -39,7 +39,7 @@ function ComoFunciona() {
   }, []);
 
   return (
-    <section className="como-section" ref={sectionRef}>
+    <section className="como-section" id="como-funciona" ref={sectionRef}>
       <div className="container">
 
         <div className="text-center mb-5 reveal">
