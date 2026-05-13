@@ -1,20 +1,27 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { AuthProvider, PrivateRoute } from "./context/AuthContext";
 
-//Importamos las paginas
-import Home from "./pages/Home";
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
-import RegistrerQr from "./components/RegisterQR/RegistrerQr";
-import File from "./components/File/File"
+import Dashboard from "./pages/Dashboard";
 
 function App() {
     return (
         <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/Register" element={<RegistrerQr />} />
-                <Route path="/File" element={<File />} />
-            </Routes>
+            <AuthProvider>
+                <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <PrivateRoute>
+                                <Dashboard />
+                            </PrivateRoute>
+                        }
+                    />
+                </Routes>
+            </AuthProvider>
         </BrowserRouter>
     );
 }

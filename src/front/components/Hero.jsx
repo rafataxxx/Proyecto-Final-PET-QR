@@ -14,10 +14,8 @@ function Hero() {
           Crea un perfil público para tu mascota y ayuda a que las personas la
           identifiquen al instante usando tecnología QR.
         </p>
-        <Link to="/register">
-           <button className="btn btn-dark btn-lg px-4">
+        <Link to="/register" className="btn btn-dark btn-lg px-4">
           Registra tu mascota
-        </button>
         </Link>
      
       </div>
