@@ -1,14 +1,15 @@
 from flask import request, jsonify, Blueprint
 from api.models import db, User, Pet
-# ¡Agrupamos todo lo de JWT aquí arriba!
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+import cloudinary.uploader # <--- IMPORTANTE: No olvides esta línea
 
 api = Blueprint('api', __name__)
 
 @api.route('/signup', methods=['POST'])
 def signup():
-    body = request.get_json()
+    force=True
+    body = request.get_json(force=True)
     email = body.get('email')
     password = body.get('password')
 
@@ -19,7 +20,6 @@ def signup():
     if not email or not password:
         return jsonify({"msg": "El email y la contraseña son obligatorios"}), 400
 
-    # Usamos la herramienta nativa de Flask para encriptar
     hashed_password = generate_password_hash(password)
 
     new_user = User(email=email, password=hashed_password)
@@ -39,22 +39,40 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
-    # Verificamos con la herramienta nativa
     if not user or not check_password_hash(user.password, password):
         return jsonify({"msg": "Email o contraseña incorrectos"}), 401
 
-    # Creamos el Token
     access_token = create_access_token(identity=str(user.id))
 
     return jsonify({"access_token": access_token}), 200
 
+# --- MISIÓN 1: SUBIDA DE IMÁGENES ---
+@api.route('/upload_image', methods=['POST'])
+@jwt_required()
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({"msg": "No se encontró ninguna imagen"}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"msg": "No se seleccionó archivo"}), 400
+
+    try:
+        # Subida a Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        return jsonify({
+            "msg": "Imagen subida a la nube",
+            "image_url": upload_result['secure_url']
+        }), 200
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 500
+
+# --- RUTA DE PERFIL ---
 @api.route('/profile', methods=['GET'])
-@jwt_required() # <--- El candado
+@jwt_required()
 def get_profile():
-    # El token nos dice quién es el usuario
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    
     return jsonify({"msg": f"Hola {user.email}, bienvenido a tu panel seguro"}), 200
 
 @api.route('/hello', methods=['GET'])
