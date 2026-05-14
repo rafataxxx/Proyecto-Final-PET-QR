@@ -1,0 +1,372 @@
+/* ─── Fade-in on load ─────────────────────────────────────────── */
+.fade-in {
+  animation: fadeInUp 0.85s ease both;
+}
+.fade-in-1 { animation-delay: 0.15s; }
+.fade-in-2 { animation-delay: 0.30s; }
+.fade-in-3 { animation-delay: 0.50s; }
+.fade-in-4 { animation-delay: 0.65s; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(36px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Scroll reveal ───────────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(44px);
+  transition: opacity 0.75s ease, transform 0.75s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── Hero ────────────────────────────────────────────────────── */
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #0f0f0f 0%, #1c1c1c 100%);
+  padding-top: 80px;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: #ff6b35;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 6px 18px;
+  border-radius: 999px;
+  margin-bottom: 1.5rem;
+}
+
+.hero-title {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  color: #fff;
+  letter-spacing: -1px;
+}
+.hero-title .accent { color: #ff6b35; }
+
+.hero-subtitle {
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.8;
+  max-width: 480px;
+}
+
+/* Hero image */
+.hero-img-wrapper {
+  border-radius: 28px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55);
+  position: relative;
+}
+.hero-img-wrapper img {
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+  display: block;
+}
+.hero-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.18) 100%);
+}
+
+/* Floating animation on the image */
+.hero-float {
+  animation: float 5s ease-in-out infinite;
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-14px); }
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────── */
+.btn-orange {
+  background: #ff6b35;
+  color: #fff;
+  border: none;
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border-radius: 14px;
+  transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-orange:hover {
+  background: #e85c28;
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(255, 107, 53, 0.35);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  font-weight: 600;
+  padding: 0.8rem 2rem;
+  border-radius: 14px;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+.btn-ghost:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.7);
+}
+
+/* ─── Navbar ──────────────────────────────────────────────────── */
+.petqr-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+  padding: 1rem 0;
+}
+.petqr-navbar.transparent {
+  background: transparent;
+}
+.petqr-navbar.solid {
+  background: #fff;
+  box-shadow: 0 2px 24px rgba(0, 0, 0, 0.08);
+  padding: 0.6rem 0;
+}
+
+.nav-brand {
+  font-size: 1.4rem;
+  font-weight: 900;
+  text-decoration: none;
+  letter-spacing: -0.5px;
+}
+.petqr-navbar.transparent .nav-brand { color: #fff; }
+.petqr-navbar.solid .nav-brand { color: #111; }
+
+.nav-link-custom {
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.petqr-navbar.transparent .nav-link-custom { color: rgba(255,255,255,0.75); }
+.petqr-navbar.transparent .nav-link-custom:hover { color: #fff; }
+.petqr-navbar.solid .nav-link-custom { color: #444; }
+.petqr-navbar.solid .nav-link-custom:hover { color: #111; }
+
+.nav-btn {
+  font-weight: 600;
+  padding: 0.5rem 1.4rem;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+.petqr-navbar.transparent .nav-btn {
+  border: 2px solid rgba(255,255,255,0.45);
+  color: #fff;
+}
+.petqr-navbar.transparent .nav-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+}
+.petqr-navbar.solid .nav-btn {
+  background: #111;
+  color: #fff;
+  border: 2px solid #111;
+}
+.petqr-navbar.solid .nav-btn:hover {
+  background: #333;
+}
+
+/* ─── ComoFunciona ────────────────────────────────────────────── */
+.como-section {
+  background: #f5f5f7;
+  padding: 6rem 0;
+}
+
+.section-badge {
+  display: inline-block;
+  background: #111;
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  padding: 6px 18px;
+  border-radius: 999px;
+  margin-bottom: 1rem;
+}
+
+.step-card {
+  background: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
+  height: 100%;
+  box-shadow: 0 4px 28px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.step-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+}
+
+.step-icon-wrap {
+  width: 58px;
+  height: 58px;
+  background: #fff4f0;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.step-num {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: #ff6b35;
+  margin-bottom: 0.4rem;
+}
+
+/* ─── Footer strip ────────────────────────────────────────────── */
+.footer-strip {
+  background: #0f0f0f;
+  color: rgba(255,255,255,0.45);
+  font-size: 0.85rem;
+  padding: 2.5rem 0;
+  text-align: center;
+}
+
+/* ─── Auth Modal ──────────────────────────────────────────────── */
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1040;
+}
+
+.auth-modal-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.auth-modal {
+  background: #fff;
+  border-radius: 24px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.25);
+  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.92) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.auth-tabs {
+  display: flex;
+  align-items: center;
+  border-bottom: 1.5px solid #f0f0f0;
+  padding: 0 1.5rem;
+}
+
+.auth-tab {
+  background: none;
+  border: none;
+  border-bottom: 2.5px solid transparent;
+  padding: 1rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #999;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+.auth-tab.active {
+  color: #111;
+  border-bottom-color: #ff6b35;
+}
+.auth-tab:hover:not(.active) {
+  color: #555;
+}
+
+.auth-close {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  color: #aaa;
+  cursor: pointer;
+  margin-left: auto;
+  padding: 0.5rem;
+  transition: color 0.2s;
+  line-height: 1;
+}
+.auth-close:hover { color: #333; }
+
+.auth-body {
+  padding: 1.75rem 1.75rem 2rem;
+}
+
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: #111;
+  margin-bottom: 0.25rem;
+}
+
+.auth-subtitle {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 1.5rem;
+}
+
+.auth-error {
+  background: #fff0ee;
+  border: 1px solid #ffcdc4;
+  color: #c0392b;
+  border-radius: 10px;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.88rem;
+  margin-bottom: 1rem;
+}
+
+/* Inline text link (toggle between tabs) */
+.btn-link-orange {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #ff6b35;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-size: inherit;
+}
+.btn-link-orange:hover { color: #e85c28; }
+
+/* ─── Smooth scroll ───────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+}
