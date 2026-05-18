@@ -2,7 +2,8 @@ from flask import request, jsonify, Blueprint
 from api.models import db, User, Pet
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-import cloudinary.uploader # <--- IMPORTANTE: No olvides esta línea
+import cloudinary.uploader 
+from api.models import Pet
 
 api = Blueprint('api', __name__)
 
@@ -30,7 +31,7 @@ def signup():
 
 @api.route('/login', methods=['POST'])
 def login():
-    body = request.get_json()
+    body = request.get_json(force=True)
     email = body.get('email')
     password = body.get('password')
 
@@ -45,6 +46,42 @@ def login():
     access_token = create_access_token(identity=str(user.id))
 
     return jsonify({"access_token": access_token}), 200
+
+
+@api.route('/pet/public/<int:pet_id>', methods=['GET'])
+def get_public_pet(pet_id):
+    # Buscamos a la mascota por su ID
+    pet = Pet.query.get(pet_id)
+    
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+        
+    # Devolvemos SOLO la información pública y necesaria para un rescate
+    return jsonify({
+        "name": pet.name,
+        "breed": pet.breed,
+        "photo_url": pet.photo_url,
+        "clinical_info": pet.clinical_info,
+        # NO enviamos el password del dueño ni datos privados sensibles
+    }), 200
+
+@api.route('/pets/gallery', methods=['GET'])
+def get_pets_gallery():
+    # 1. Buscamos todas las mascotas registradas en la base de datos
+    pets = Pet.query.all()
+    
+    # 2. Filtramos y empaquetamos SOLO la información pública (Minimización de datos)
+    gallery = []
+    for pet in pets:
+        # Opcional: Solo enviamos mascotas que ya tengan una foto subida
+        if pet.photo_url: 
+            gallery.append({
+                "id": pet.id,
+                "name": pet.name,
+                "photo_url": pet.photo_url
+            })
+            
+    return jsonify(gallery), 200
 
 # --- MISIÓN 1: SUBIDA DE IMÁGENES ---
 @api.route('/upload_image', methods=['POST'])
