@@ -171,6 +171,7 @@
   transition: all 0.2s ease;
 }
 .petqr-navbar.transparent .nav-btn {
+  background: transparent;
   border: 2px solid rgba(255,255,255,0.45);
   color: #fff;
 }
@@ -365,6 +366,15 @@
   font-size: inherit;
 }
 .btn-link-orange:hover { color: #e85c28; }
+
+/* ─── Pet Gallery Cards ───────────────────────────────────────── */
+.pet-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.13) !important;
+}
+.pet-card:hover img {
+  transform: scale(1.06);
+}
 
 /* ─── Smooth scroll ───────────────────────────────────────────── */
 html {

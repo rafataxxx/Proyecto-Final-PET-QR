@@ -21,6 +21,7 @@ function Navbar({ onOpenModal }) {
                 <div className="d-flex gap-4 align-items-center">
                     <a className="nav-link-custom" href="#inicio">Inicio</a>
                     <a className="nav-link-custom" href="#como-funciona">Cómo funciona</a>
+                    <Link className="nav-link-custom" to="/mascotas">Mascotas</Link>
                     <button
                         className="nav-btn"
                         type="button"

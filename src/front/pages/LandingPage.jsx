@@ -2,6 +2,7 @@ import { useState } from "react";
 import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import ComoFunciona from "../components/ComoFunciona";
+import PetsGallery from "../components/PetsGallery";
 import AuthModal from "../components/AuthModal";
 
 function Footer() {
@@ -30,6 +31,7 @@ function LandingPage() {
             <Navbar onOpenModal={openModal} />
             <Hero onOpenModal={openModal} />
             <ComoFunciona />
+            <PetsGallery />
             <Footer />
             <AuthModal
                 show={modal.show}
