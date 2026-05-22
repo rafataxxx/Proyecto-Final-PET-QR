@@ -112,6 +112,55 @@ def get_profile():
     user = User.query.get(user_id)
     return jsonify({"msg": f"Hola {user.email}, bienvenido a tu panel seguro"}), 200
 
+@api.route('/my_pets', methods=['GET'])
+@jwt_required()
+def get_my_pets():
+    user_id = get_jwt_identity()
+    pets = Pet.query.filter_by(owner_id=user_id).all()
+    return jsonify([pet.serialize() for pet in pets]), 200
+
+@api.route('/pets', methods=['POST'])
+@jwt_required()
+def create_pet():
+    user_id = get_jwt_identity()
+    body = request.get_json()
+    new_pet = Pet(
+        name=body.get('name'),
+        breed=body.get('breed'),
+        clinical_info=body.get('clinical_info'),
+        photo_url=body.get('photo_url'),
+        owner_id=user_id
+    )
+    db.session.add(new_pet)
+    db.session.commit()
+    return jsonify(new_pet.serialize()), 201
+
+@api.route('/pets/<int:pet_id>', methods=['PUT'])
+@jwt_required()
+def update_pet(pet_id):
+    user_id = get_jwt_identity()
+    pet = Pet.query.filter_by(id=pet_id, owner_id=user_id).first()
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+    body = request.get_json()
+    pet.name = body.get('name', pet.name)
+    pet.breed = body.get('breed', pet.breed)
+    pet.clinical_info = body.get('clinical_info', pet.clinical_info)
+    pet.photo_url = body.get('photo_url', pet.photo_url)
+    db.session.commit()
+    return jsonify(pet.serialize()), 200
+
+@api.route('/pets/<int:pet_id>', methods=['DELETE'])
+@jwt_required()
+def delete_pet(pet_id):
+    user_id = get_jwt_identity()
+    pet = Pet.query.filter_by(id=pet_id, owner_id=user_id).first()
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+    db.session.delete(pet)
+    db.session.commit()
+    return jsonify({"msg": "Mascota eliminada"}), 200
+
 @api.route('/hello', methods=['GET'])
 def home():
     return jsonify({"msg": "Servidor de Mascota Activo"}), 200
