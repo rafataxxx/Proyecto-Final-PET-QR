@@ -1,6 +1,3 @@
-"""
-This module takes care of starting the API Server, Loading the DB and Adding the endpoints
-"""
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
@@ -11,33 +8,42 @@ from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
+from dotenv import load_dotenv
 
-# from models import Person
+# 1. FORZAMOS LA LECTURA DEL ENTORNO PARA EVITAR FALLOS EN GIT BASH/WINDOWS
+load_dotenv()
 
-# 1. INICIALIZAMOS LA APP UNA SOLA VEZ
+# 2. INICIALIZAMOS LA APP
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 # 2. CONFIGURAMOS JWT
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL", "sqlite:///test.db")
 # app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+# 3. CONFIGURAMOS JWT
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super_secreto_por_si_falla_el_env') 
 jwt = JWTManager(app)
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 
-# database condiguration
+# 4. CONFIGURACIÓN BLINDADA DE BASE DE DATOS PARA WINDOWS
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
         "postgres://", "postgresql://")
 else:
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/test.db"
+    # Si por alguna razón extrema no lee el .env, usará esta ruta segura en tu carpeta actual
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///mascotas.db"
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
+
+# 5. CREACIÓN AUTOMÁTICA DE TABLAS
+with app.app_context():
+    db.create_all()
 
 # add the admin
 setup_admin(app)
@@ -69,7 +75,7 @@ def serve_any_other_file(path):
     response.cache_control.max_age = 0  # avoid cache memory
     return response
 
-# this only runs if `$ python src/main.py` is executed
+# this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     app.run(host='0.0.0.0', port=PORT, debug=True)

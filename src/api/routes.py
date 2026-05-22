@@ -1,14 +1,15 @@
 from flask import request, jsonify, Blueprint
 from api.models import db, User, Pet
-# ¡Agrupamos todo lo de JWT aquí arriba!
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+import cloudinary.uploader 
 
 api = Blueprint('api', __name__)
 
 @api.route('/signup', methods=['POST'])
 def signup():
-    body = request.get_json()
+    force=True
+    body = request.get_json(force=True)
     email = body.get('email')
     password = body.get('password')
 
@@ -19,7 +20,6 @@ def signup():
     if not email or not password:
         return jsonify({"msg": "El email y la contraseña son obligatorios"}), 400
 
-    # Usamos la herramienta nativa de Flask para encriptar
     hashed_password = generate_password_hash(password)
 
     new_user = User(email=email, password=hashed_password)
@@ -30,7 +30,7 @@ def signup():
 
 @api.route('/login', methods=['POST'])
 def login():
-    body = request.get_json()
+    body = request.get_json(force=True)
     email = body.get('email')
     password = body.get('password')
 
@@ -39,22 +39,76 @@ def login():
 
     user = User.query.filter_by(email=email).first()
 
-    # Verificamos con la herramienta nativa
     if not user or not check_password_hash(user.password, password):
         return jsonify({"msg": "Email o contraseña incorrectos"}), 401
 
-    # Creamos el Token
     access_token = create_access_token(identity=str(user.id))
 
     return jsonify({"access_token": access_token}), 200
 
+
+@api.route('/pet/public/<int:pet_id>', methods=['GET'])
+def get_public_pet(pet_id):
+    # Buscamos a la mascota por su ID
+    pet = Pet.query.get(pet_id)
+    
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+        
+    # Devolvemos SOLO la información pública y necesaria para un rescate
+    return jsonify({
+        "name": pet.name,
+        "breed": pet.breed,
+        "photo_url": pet.photo_url,
+        "clinical_info": pet.clinical_info,
+        # NO enviamos el password del dueño ni datos privados sensibles
+    }), 200
+
+@api.route('/pets/gallery', methods=['GET'])
+def get_pets_gallery():
+    # 1. Buscamos todas las mascotas registradas en la base de datos
+    pets = Pet.query.all()
+    
+    # 2. Filtramos y empaquetamos SOLO la información pública (Minimización de datos)
+    gallery = []
+    for pet in pets:
+        # Opcional: Solo enviamos mascotas que ya tengan una foto subida
+        if pet.photo_url: 
+            gallery.append({
+                "id": pet.id,
+                "name": pet.name,
+                "photo_url": pet.photo_url
+            })
+            
+    return jsonify(gallery), 200
+
+# --- MISIÓN 1: SUBIDA DE IMÁGENES ---
+@api.route('/upload_image', methods=['POST'])
+@jwt_required()
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({"msg": "No se encontró ninguna imagen"}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"msg": "No se seleccionó archivo"}), 400
+
+    try:
+        # Subida a Cloudinary
+        upload_result = cloudinary.uploader.upload(file)
+        return jsonify({
+            "msg": "Imagen subida a la nube",
+            "image_url": upload_result['secure_url']
+        }), 200
+    except Exception as e:
+        return jsonify({"msg": str(e)}), 500
+
+# --- RUTA DE PERFIL ---
 @api.route('/profile', methods=['GET'])
-@jwt_required() # <--- El candado
+@jwt_required()
 def get_profile():
-    # El token nos dice quién es el usuario
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-    
     return jsonify({"msg": f"Hola {user.email}, bienvenido a tu panel seguro"}), 200
 
 # --- RUTAS DE MASCOTAS (GABRIEL) ---
@@ -63,23 +117,43 @@ def get_profile():
 @api.route('/pet', methods=['POST'])
 @jwt_required()
 def create_pet():
-    body = request.get_json()
-    owner_id = get_jwt_identity() # Identifica al usuario por el Token
+    owner_id = get_jwt_identity()
 
-    if not body.get("name"):
+    name = request.form.get("name")
+    breed = request.form.get("breed")
+    clinical_info = request.form.get("clinical_info")
+
+    if not name:
         return jsonify({"msg": "El nombre es obligatorio"}), 400
 
+    image_file = request.files.get('photo')
+    photo_url = None 
+
+    # Si viene una foto, la subimos a Cloudinary de una
+    if image_file:
+        try:
+            upload_result = cloudinary.uploader.upload(image_file)
+            photo_url = upload_result.get('secure_url')
+        except Exception as e:
+            return jsonify({"msg": "Error al subir la foto a Cloudinary", "error": str(e)}), 500
+
+    #  Guardamos la mascota con la URL real generada en el paso anterior
     new_pet = Pet(
-        name=body.get("name"),
-        breed=body.get("breed"),
-        clinical_info=body.get("clinical_info"),
-        photo_url=body.get("photo_url"),
+        name=name,
+        breed=breed,
+        clinical_info=clinical_info,
+        photo_url=photo_url, 
         owner_id=owner_id
     )
 
     db.session.add(new_pet)
     db.session.commit()
-    return jsonify({"msg": f"Mascota {new_pet.name} creada con éxito"}), 201
+    
+    # Se devuelve el diccionario serializado completo
+    return jsonify({
+        "msg": f"Mascota {new_pet.name} creada con éxito",
+        "pet": new_pet.serialize() 
+    }), 201
 
 # 2. Ver mis Mascotas (GET)
 @api.route('/my_pets', methods=['GET'])
@@ -97,7 +171,6 @@ def update_pet(pet_id):
     body = request.get_json()
     owner_id = get_jwt_identity()
     
-    # Buscamos la mascota y verificamos que sea del usuario logueado
     pet = Pet.query.filter_by(id=pet_id, owner_id=owner_id).first()
     
     if not pet:
