@@ -129,7 +129,6 @@ def create_pet():
     image_file = request.files.get('photo')
     photo_url = None 
 
-    # Si viene una foto, la subimos a Cloudinary de una
     if image_file:
         try:
             upload_result = cloudinary.uploader.upload(image_file)
@@ -137,7 +136,6 @@ def create_pet():
         except Exception as e:
             return jsonify({"msg": "Error al subir la foto a Cloudinary", "error": str(e)}), 500
 
-    #  Guardamos la mascota con la URL real generada en el paso anterior
     new_pet = Pet(
         name=name,
         breed=breed,
@@ -149,7 +147,6 @@ def create_pet():
     db.session.add(new_pet)
     db.session.commit()
     
-    # Se devuelve el diccionario serializado completo
     return jsonify({
         "msg": f"Mascota {new_pet.name} creada con éxito",
         "pet": new_pet.serialize() 
