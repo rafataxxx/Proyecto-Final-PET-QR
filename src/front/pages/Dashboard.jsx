@@ -152,8 +152,8 @@ function Dashboard() {
             headers: { Authorization: `Bearer ${token}` },
             body: fd,
         });
-        if (!res.ok) return null;
         const data = await res.json();
+        if (!res.ok) throw new Error("Error al subir imagen: " + (data.msg || res.status));
         return data.image_url;
     };
 

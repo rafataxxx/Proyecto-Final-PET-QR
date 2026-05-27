@@ -9,16 +9,32 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
+from datetime import timedelta
+from urllib.parse import urlparse
+import cloudinary
 
 # 1. FORZAMOS LA LECTURA DEL ENTORNO PARA EVITAR FALLOS EN GIT BASH/WINDOWS
 load_dotenv()
+
+# CONFIGURACIÓN DE CLOUDINARY — parsea la URL manualmente
+cloudinary_url = os.getenv("CLOUDINARY_URL")
+if cloudinary_url:
+    parsed = urlparse(cloudinary_url)
+    cloudinary.config(
+        cloud_name=parsed.hostname,
+        api_key=parsed.username,
+        api_secret=parsed.password,
+        secure=True
+    )
+
 
 # 2. INICIALIZAMOS LA APP
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 # 3. CONFIGURAMOS JWT
-app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super_secreto_por_si_falla_el_env') 
+app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'super_secreto_por_si_falla_el_env')
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 jwt = JWTManager(app)
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
