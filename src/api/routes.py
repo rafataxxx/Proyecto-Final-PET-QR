@@ -21,7 +21,10 @@ def signup():
     if not email or not password:
         return jsonify({"msg": "El email y la contraseña son obligatorios"}), 400
 
-    hashed_password = generate_password_hash(password)
+    hashed_password = generate_password_hash(
+    password,
+    method='pbkdf2:sha256'
+)
 
     new_user = User(email=email, password=hashed_password)
     db.session.add(new_user)

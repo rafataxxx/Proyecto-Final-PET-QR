@@ -5,84 +5,227 @@ import { useAuth } from "../context/AuthContext";
 // ── Formulario reutilizable (crear / editar) ────────────────────────────────
 function PetForm({ initial = {}, loading, error, onSubmit, submitLabel }) {
     const fileRef = useRef(null);
+
     const [form, setForm] = useState({
         name: initial.name || "",
         breed: initial.breed || "",
+        species: initial.species || "",
+        color: initial.color || "",
+        sex: initial.sex || "",
+        age: initial.age || "",
+        contact: initial.contact || "",
         clinical_info: initial.clinical_info || "",
         photo: null,
         photoPreview: initial.photo_url || null,
     });
 
-    const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+    const handleChange = (e) =>
+        setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+
     const handlePhoto = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        setForm((p) => ({ ...p, photo: file, photoPreview: URL.createObjectURL(file) }));
+        setForm((p) => ({
+            ...p,
+            photo: file,
+            photoPreview: URL.createObjectURL(file),
+        }));
     };
 
-    const inputStyle = { borderRadius: 12, border: "1.5px solid #e0e0e0", background: "#fff", fontSize: "0.95rem" };
+    const inputStyle = {
+        borderRadius: 12,
+        border: "1.5px solid #e0e0e0",
+        background: "#fff",
+        fontSize: "0.95rem",
+    };
 
     return (
         <form onSubmit={(e) => onSubmit(e, form)}>
-            {/* Foto */}
+
+            {/* FOTO (IGUAL) */}
             <div className="text-center mb-4">
-                <div onClick={() => fileRef.current.click()}
+                <div
+                    onClick={() => fileRef.current.click()}
                     style={{
-                        width: 100, height: 100, borderRadius: "50%",
+                        width: 100,
+                        height: 100,
+                        borderRadius: "50%",
                         background: form.photoPreview ? "transparent" : "#f5f5f7",
                         border: `2.5px dashed ${form.photoPreview ? "#ff6b35" : "#ddd"}`,
-                        cursor: "pointer", overflow: "hidden",
-                        display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto",
-                    }}>
-                    {form.photoPreview
-                        ? <img src={form.photoPreview} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="preview" />
-                        : <span style={{ fontSize: "2rem", color: "#ccc" }}>📷</span>}
+                        cursor: "pointer",
+                        overflow: "hidden",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        margin: "0 auto",
+                    }}
+                >
+                    {form.photoPreview ? (
+                        <img
+                            src={form.photoPreview}
+                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                            alt="preview"
+                        />
+                    ) : (
+                        <span style={{ fontSize: "2rem", color: "#ccc" }}>📷</span>
+                    )}
                 </div>
-                <input ref={fileRef} type="file" accept="image/*" style={{ display: "none" }} onChange={handlePhoto} />
-                <p style={{ fontSize: "0.8rem", color: "#999", marginTop: "0.5rem", cursor: "pointer" }}
-                    onClick={() => fileRef.current.click()}>
-                    {form.photoPreview ? "Cambiar foto" : "Agregar foto"}
-                </p>
+
+                <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={handlePhoto}
+                />
             </div>
 
+            {/* ERROR */}
             {error && (
-                <div style={{ background: "#fff0ee", color: "#c0392b", borderRadius: 10, padding: "0.65rem 1rem", fontSize: "0.88rem", marginBottom: "1rem" }}>
+                <div style={{
+                    background: "#fff0ee",
+                    color: "#c0392b",
+                    borderRadius: 10,
+                    padding: "0.65rem 1rem",
+                    fontSize: "0.88rem",
+                    marginBottom: "1rem"
+                }}>
                     {error}
                 </div>
             )}
+
+            {/* ───── CAMPOS (MISMO ESTILO) ───── */}
 
             <div className="mb-3">
                 <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
                     Nombre <span style={{ color: "#ff6b35" }}>*</span>
                 </label>
-                <input type="text" name="name" className="form-control form-control-lg"
-                    placeholder="Ej: Luna, Max, Firulais"
-                    value={form.name} onChange={handleChange} style={inputStyle} required />
+                <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                    required
+                />
             </div>
 
             <div className="mb-3">
-                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>Raza</label>
-                <input type="text" name="breed" className="form-control form-control-lg"
-                    placeholder="Ej: Golden Retriever, Mestizo"
-                    value={form.breed} onChange={handleChange} style={inputStyle} />
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Especie
+                </label>
+                <input
+                    type="text"
+                    name="species"
+                    value={form.species}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Raza
+                </label>
+                <input
+                    type="text"
+                    name="breed"
+                    value={form.breed}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Color
+                </label>
+                <input
+                    type="text"
+                    name="color"
+                    value={form.color}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Sexo
+                </label>
+                <input
+                    type="text"
+                    name="sex"
+                    value={form.sex}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Edad
+                </label>
+                <input
+                    type="text"
+                    name="age"
+                    value={form.age}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                />
+            </div>
+
+            <div className="mb-3">
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Contacto
+                </label>
+                <input
+                    type="text"
+                    name="contact"
+                    value={form.contact}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                />
             </div>
 
             <div className="mb-4">
-                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>Info médica / notas</label>
-                <textarea name="clinical_info" className="form-control" rows={3}
-                    placeholder="Vacunas, alergias, contacto de emergencia..."
-                    value={form.clinical_info} onChange={handleChange}
-                    style={{ ...inputStyle, resize: "none" }} />
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Info médica / notas
+                </label>
+                <textarea
+                    name="clinical_info"
+                    value={form.clinical_info}
+                    onChange={handleChange}
+                    className="form-control"
+                    rows={3}
+                    style={{ ...inputStyle, resize: "none" }}
+                />
             </div>
 
-            <button type="submit" disabled={loading}
+            {/* BOTÓN (IGUAL) */}
+            <button
+                type="submit"
+                disabled={loading}
                 style={{
-                    width: "100%", background: "#ff6b35", color: "#fff",
-                    border: "none", borderRadius: 14, padding: "0.85rem",
-                    fontWeight: 700, fontSize: "1rem",
+                    width: "100%",
+                    background: "#ff6b35",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 14,
+                    padding: "0.85rem",
+                    fontWeight: 700,
+                    fontSize: "1rem",
                     cursor: loading ? "not-allowed" : "pointer",
                     opacity: loading ? 0.7 : 1,
-                }}>
+                }}
+            >
                 {loading ? "Guardando..." : submitLabel}
             </button>
         </form>

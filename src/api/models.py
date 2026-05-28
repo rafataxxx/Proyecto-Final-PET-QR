@@ -18,14 +18,47 @@ class User(db.Model):
             # ¡Nunca serialices la contraseña por seguridad!
         }
 
+#class Pet(db.Model):
+  #  id = db.Column(db.Integer, primary_key=True)
+  #  name = db.Column(db.String(100), nullable=False)
+  #  breed = db.Column(db.String(100))
+  #  clinical_info = db.Column(db.Text)
+   # photo_url = db.Column(db.String(255))
+   # qr_code_url = db.Column(db.String(255))
+    
+   # owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+   # def serialize(self):
+     #   return {
+      #      "id": self.id,
+      #      "name": self.name,
+      #      "breed": self.breed,
+       #     "clinical_info": self.clinical_info,
+       #     "photo_url": self.photo_url,
+      #      "qr_code_url": self.qr_code_url,
+       #     "owner_id": self.owner_id
+       # } 
+
+# NUEVA TABLA OJO
+
 class Pet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+
     name = db.Column(db.String(100), nullable=False)
     breed = db.Column(db.String(100))
+
+    # nuevos campos
+    species = db.Column(db.String(50))
+    color = db.Column(db.String(50))
+    sex = db.Column(db.String(20))
+    age = db.Column(db.String(20))
+    contact = db.Column(db.String(100))
+
     clinical_info = db.Column(db.Text)
+
     photo_url = db.Column(db.String(255))
     qr_code_url = db.Column(db.String(255))
-    
+
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def serialize(self):
@@ -33,6 +66,11 @@ class Pet(db.Model):
             "id": self.id,
             "name": self.name,
             "breed": self.breed,
+            "species": self.species,
+            "color": self.color,
+            "sex": self.sex,
+            "age": self.age,
+            "contact": self.contact,
             "clinical_info": self.clinical_info,
             "photo_url": self.photo_url,
             "qr_code_url": self.qr_code_url,
