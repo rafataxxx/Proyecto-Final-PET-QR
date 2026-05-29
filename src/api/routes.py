@@ -34,24 +34,27 @@ def signup():
 
 @api.route('/login', methods=['POST'])
 def login():
-    body = request.get_json(force=True)
-    email = body.get('email')
-    password = body.get('password')
+    try:
+        body = request.get_json(force=True)
+        email = body.get('email')
+        password = body.get('password')
 
-    if not email or not password:
-        return jsonify({"msg": "Faltan el email o la contraseña"}), 400
+        if not email or not password:
+            return jsonify({"msg": "Faltan el email o la contraseña"}), 400
 
-    user = User.query.filter_by(email=email).first()
+        user = User.query.filter_by(email=email).first()
 
-    if not user or not check_password_hash(user.password, password):
-        return jsonify({"msg": "Email o contraseña incorrectos"}), 401
+        if not user or not check_password_hash(user.password, password):
+            return jsonify({"msg": "Email o contraseña incorrectos"}), 401
 
-    access_token = create_access_token(identity=str(user.id))
+        access_token = create_access_token(identity=str(user.id))
 
-    return jsonify({
-        "access_token": access_token,
-        "is_admin": user.is_admin
-    }), 200
+        return jsonify({
+            "access_token": access_token,
+            "is_admin": user.is_admin
+        }), 200
+    except Exception as e:
+        return jsonify({"msg": f"Error interno: {str(e)}"}), 500
 
 
 @api.route('/pet/public/<int:pet_id>', methods=['GET'])
