@@ -82,13 +82,13 @@ def get_pets_gallery():
     # 2. Filtramos y empaquetamos SOLO la información pública (Minimización de datos)
     gallery = []
     for pet in pets:
-        # Opcional: Solo enviamos mascotas que ya tengan una foto subida
-        if pet.photo_url: 
-            gallery.append({
-                "id": pet.id,
-                "name": pet.name,
-                "photo_url": pet.photo_url
-            })
+        gallery.append({
+            "id": pet.id,
+            "name": pet.name,
+            "breed": pet.breed,
+            "species": pet.species,
+            "photo_url": pet.photo_url,
+        })
             
     return jsonify(gallery), 200
 

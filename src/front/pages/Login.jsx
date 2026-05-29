@@ -17,6 +17,11 @@ function Login() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
+
+        if (form.password.length < 6) {
+            return setError("La contraseña debe tener al menos 6 caracteres");
+        }
+
         setLoading(true);
 
         try {

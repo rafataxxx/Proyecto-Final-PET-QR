@@ -1,18 +1,24 @@
 import { useEffect, useState } from "react";
 
+const PAGE_SIZE = 8;
+
 function PetsGallery() {
     const [pets, setPets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [visible, setVisible] = useState(PAGE_SIZE);
 
     useEffect(() => {
         fetch("/api/pets/gallery")
             .then((res) => res.json())
             .then((data) => {
-                setPets(data);
+                setPets(Array.isArray(data) ? data : []);
                 setLoading(false);
             })
             .catch(() => setLoading(false));
     }, []);
+
+    const shown = pets.slice(0, visible);
+    const hasMore = visible < pets.length;
 
     return (
         <section id="galeria" style={{ background: "#fff", padding: "6rem 0" }}>
@@ -59,66 +65,74 @@ function PetsGallery() {
                 )}
 
                 {!loading && pets.length > 0 && (
-                    <div className="row g-4">
-                        {pets.map((pet) => (
-                            <div
-                                className="col-6 col-md-4 col-lg-3"
-                                key={pet.id}
-                            >
-                                <div
-                                    className="pet-card"
-                                    style={{
-                                        background: "#fff",
-                                        borderRadius: 20,
-                                        overflow: "hidden",
-                                        boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                                        transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                                        cursor: "default",
-                                    }}
-                                >
-                                    <div style={{ height: 200, overflow: "hidden" }}>
-                                        <img
-                                            src={
-                                                pet.photo_url ||
-                                                "https://placehold.co/300x300/f5f5f7/999?text=🐾"
-                                            }
-                                            alt={pet.name}
-                                            style={{
-                                                width: "100%",
-                                                height: "100%",
-                                                objectFit: "cover",
-                                                transition: "transform 0.4s ease",
-                                            }}
-                                        />
-                                    </div>
+                    <>
+                        <div className="row g-4">
+                            {shown.map((pet) => (
+                                <div className="col-6 col-md-4 col-lg-3" key={pet.id}>
                                     <div
+                                        className="pet-card"
                                         style={{
-                                            padding: "0.9rem 1rem",
-                                            textAlign: "center",
+                                            background: "#fff",
+                                            borderRadius: 20,
+                                            overflow: "hidden",
+                                            boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
+                                            transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                                            cursor: "default",
                                         }}
                                     >
-                                        <h6
-                                            style={{
-                                                fontWeight: 700,
-                                                margin: 0,
-                                                fontSize: "1rem",
-                                            }}
-                                        >
-                                            {pet.name}
-                                        </h6>
-                                        {pet.breed && (
-                                            <p
-                                                className="text-secondary mb-0"
-                                                style={{ fontSize: "0.82rem" }}
-                                            >
-                                                {pet.breed}
-                                            </p>
-                                        )}
+                                        <div style={{ height: 200, overflow: "hidden", background: "#f5f5f7" }}>
+                                            <img
+                                                src={
+                                                    pet.photo_url ||
+                                                    "https://placehold.co/300x300/f5f5f7/bbb?text=🐾"
+                                                }
+                                                alt={pet.name}
+                                                style={{
+                                                    width: "100%",
+                                                    height: "100%",
+                                                    objectFit: "cover",
+                                                    transition: "transform 0.4s ease",
+                                                }}
+                                            />
+                                        </div>
+                                        <div style={{ padding: "0.9rem 1rem", textAlign: "center" }}>
+                                            <h6 style={{ fontWeight: 700, margin: 0, fontSize: "1rem" }}>
+                                                {pet.name}
+                                            </h6>
+                                            {(pet.breed || pet.species) && (
+                                                <p className="text-secondary mb-0" style={{ fontSize: "0.82rem" }}>
+                                                    {pet.species || ""}{pet.species && pet.breed ? " · " : ""}{pet.breed || ""}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
+                            ))}
+                        </div>
+
+                        {hasMore && (
+                            <div className="text-center mt-5">
+                                <button
+                                    onClick={() => setVisible((v) => v + PAGE_SIZE)}
+                                    style={{
+                                        background: "#111",
+                                        color: "#fff",
+                                        border: "none",
+                                        borderRadius: 14,
+                                        padding: "0.75rem 2rem",
+                                        fontWeight: 700,
+                                        fontSize: "0.95rem",
+                                        cursor: "pointer",
+                                        transition: "opacity 0.2s",
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.opacity = "0.8"}
+                                    onMouseLeave={(e) => e.currentTarget.style.opacity = "1"}
+                                >
+                                    Ver más mascotas ({pets.length - visible} restantes)
+                                </button>
                             </div>
-                        ))}
-                    </div>
+                        )}
+                    </>
                 )}
             </div>
         </section>

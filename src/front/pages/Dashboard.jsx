@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../components/Toast";
 
 // ── Formulario reutilizable (crear / editar) ────────────────────────────────
 function PetForm({ initial = {}, loading, error, onSubmit, submitLabel }) {
@@ -265,7 +266,8 @@ function Modal({ show, title, onClose, children }) {
 
 // ── Dashboard principal ─────────────────────────────────────────────────────
 function Dashboard() {
-    const { token, logout } = useAuth();
+    const { token, logout, apiFetch } = useAuth();
+    const { show: showToast, ToastEl } = useToast();
     const [pets, setPets] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -280,21 +282,18 @@ function Dashboard() {
     const [deleteLoading, setDeleteLoading] = useState(false);
 
     useEffect(() => {
-        fetch("/api/my_pets", { headers: { Authorization: `Bearer ${token}` } })
-            .then((r) => r.json())
-            .then((data) => { setPets(Array.isArray(data) ? data : []); setLoading(false); })
+        apiFetch("/api/my_pets")
+            .then((r) => r && r.json())
+            .then((data) => { if (data) setPets(Array.isArray(data) ? data : []); setLoading(false); })
             .catch(() => setLoading(false));
-    }, [token]);
+    }, []);
 
     // ── Subir foto helper ───────────────────────────────────────────────────
     const uploadPhoto = async (file) => {
         const fd = new FormData();
         fd.append("image", file);
-        const res = await fetch("/api/upload_image", {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-            body: fd,
-        });
+        const res = await apiFetch("/api/upload_image", { method: "POST", body: fd });
+        if (!res) throw new Error("Sesión expirada");
         const data = await res.json();
         if (!res.ok) throw new Error("Error al subir imagen: " + (data.msg || res.status));
         return data.image_url;
@@ -309,15 +308,17 @@ function Dashboard() {
             let photo_url = null;
             if (form.photo) photo_url = await uploadPhoto(form.photo);
 
-            const res = await fetch("/api/pets", {
+            const res = await apiFetch("/api/pets", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ name: form.name, breed: form.breed, clinical_info: form.clinical_info, photo_url }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: form.name, breed: form.breed, species: form.species, color: form.color, sex: form.sex, age: form.age, contact: form.contact, clinical_info: form.clinical_info, photo_url }),
             });
+            if (!res) return;
             const data = await res.json();
             if (!res.ok) throw new Error(data.msg || "Error al crear");
             setPets((p) => [...p, data]);
             setShowAdd(false);
+            showToast(`¡${data.name} agregado correctamente! 🐾`);
         } catch (err) { setFormError(err.message); }
         finally { setFormLoading(false); }
     };
@@ -331,15 +332,17 @@ function Dashboard() {
             let photo_url = editPet.photo_url;
             if (form.photo) photo_url = await uploadPhoto(form.photo);
 
-            const res = await fetch(`/api/pets/${editPet.id}`, {
+            const res = await apiFetch(`/api/pets/${editPet.id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-                body: JSON.stringify({ name: form.name, breed: form.breed, clinical_info: form.clinical_info, photo_url }),
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: form.name, breed: form.breed, species: form.species, color: form.color, sex: form.sex, age: form.age, contact: form.contact, clinical_info: form.clinical_info, photo_url }),
             });
+            if (!res) return;
             const data = await res.json();
             if (!res.ok) throw new Error(data.msg || "Error al editar");
             setPets((p) => p.map((pet) => pet.id === editPet.id ? data : pet));
             setEditPet(null);
+            showToast("Cambios guardados correctamente ✅");
         } catch (err) { setFormError(err.message); }
         finally { setFormLoading(false); }
     };
@@ -347,15 +350,15 @@ function Dashboard() {
     // ── Eliminar mascota ────────────────────────────────────────────────────
     const handleDelete = async () => {
         setDeleteLoading(true);
+        const petName = deletePet.name;
         try {
-            const res = await fetch(`/api/pets/${deletePet.id}`, {
-                method: "DELETE",
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            const res = await apiFetch(`/api/pets/${deletePet.id}`, { method: "DELETE" });
+            if (!res) return;
             if (!res.ok) throw new Error("Error al eliminar");
             setPets((p) => p.filter((pet) => pet.id !== deletePet.id));
             setDeletePet(null);
-        } catch (err) { alert(err.message); }
+            showToast(`${petName} eliminado`, "error");
+        } catch (err) { showToast(err.message, "error"); }
         finally { setDeleteLoading(false); }
     };
 
@@ -570,6 +573,8 @@ function Dashboard() {
                     to   { opacity: 1; transform: scale(1) translateY(0); }
                 }
             `}</style>
+
+            {ToastEl}
         </div>
     );
 }

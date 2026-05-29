@@ -13,7 +13,12 @@ function Register() {
         password: "",
         confirm: "",
         petName: "",
+        species: "",
         breed: "",
+        color: "",
+        sex: "",
+        age: "",
+        contact: "",
         clinicalInfo: "",
         photo: null,
         photoPreview: null,
@@ -103,7 +108,12 @@ function Register() {
                 },
                 body: JSON.stringify({
                     name: form.petName,
+                    species: form.species,
                     breed: form.breed,
+                    color: form.color,
+                    sex: form.sex,
+                    age: form.age,
+                    contact: form.contact,
                     clinical_info: form.clinicalInfo,
                     photo_url: photoUrl,
                 }),
@@ -437,6 +447,24 @@ function Register() {
                                             className="form-label fw-semibold"
                                             style={{ fontSize: "0.88rem" }}
                                         >
+                                            Especie
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="species"
+                                            className="form-control form-control-lg"
+                                            placeholder="Ej: Perro, Gato, Conejo"
+                                            value={form.species}
+                                            onChange={handleChange}
+                                            style={inputStyle}
+                                        />
+                                    </div>
+
+                                    <div className="mb-3">
+                                        <label
+                                            className="form-label fw-semibold"
+                                            style={{ fontSize: "0.88rem" }}
+                                        >
                                             Raza
                                         </label>
                                         <input
@@ -450,6 +478,62 @@ function Register() {
                                         />
                                     </div>
 
+                                    <div className="row g-2 mb-3">
+                                        <div className="col-6">
+                                            <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>Color</label>
+                                            <input
+                                                type="text"
+                                                name="color"
+                                                className="form-control form-control-lg"
+                                                placeholder="Ej: Negro, Marrón"
+                                                value={form.color}
+                                                onChange={handleChange}
+                                                style={inputStyle}
+                                            />
+                                        </div>
+                                        <div className="col-6">
+                                            <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>Sexo</label>
+                                            <select
+                                                name="sex"
+                                                className="form-control form-control-lg"
+                                                value={form.sex}
+                                                onChange={handleChange}
+                                                style={inputStyle}
+                                            >
+                                                <option value="">Seleccionar</option>
+                                                <option value="Macho">Macho</option>
+                                                <option value="Hembra">Hembra</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="row g-2 mb-3">
+                                        <div className="col-6">
+                                            <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>Edad</label>
+                                            <input
+                                                type="text"
+                                                name="age"
+                                                className="form-control form-control-lg"
+                                                placeholder="Ej: 2 años"
+                                                value={form.age}
+                                                onChange={handleChange}
+                                                style={inputStyle}
+                                            />
+                                        </div>
+                                        <div className="col-6">
+                                            <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>Contacto</label>
+                                            <input
+                                                type="text"
+                                                name="contact"
+                                                className="form-control form-control-lg"
+                                                placeholder="Teléfono / email"
+                                                value={form.contact}
+                                                onChange={handleChange}
+                                                style={inputStyle}
+                                            />
+                                        </div>
+                                    </div>
+
                                     <div className="mb-4">
                                         <label
                                             className="form-label fw-semibold"
@@ -461,7 +545,7 @@ function Register() {
                                             name="clinicalInfo"
                                             className="form-control"
                                             rows={3}
-                                            placeholder="Ej: Vacunas al día, alérgica a la penicilina, contacto de emergencia..."
+                                            placeholder="Ej: Vacunas al día, alérgica a la penicilina..."
                                             value={form.clinicalInfo}
                                             onChange={handleChange}
                                             style={{ ...inputStyle, resize: "none" }}
