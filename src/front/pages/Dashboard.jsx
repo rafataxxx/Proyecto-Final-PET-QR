@@ -363,39 +363,59 @@ function Dashboard() {
         <div style={{ minHeight: "100vh", background: "#f5f5f7" }}>
 
             {/* Navbar */}
-            <nav style={{ background: "#fff", boxShadow: "0 2px 24px rgba(0,0,0,0.07)", padding: "0.75rem 0", position: "sticky", top: 0, zIndex: 100 }}>
+            <nav style={{ background: "#fff", boxShadow: "0 2px 24px rgba(0,0,0,0.07)", padding: "0.85rem 0", position: "sticky", top: 0, zIndex: 100 }}>
                 <div className="container d-flex justify-content-between align-items-center">
                     <Link to="/" className="text-decoration-none"
                         style={{ fontSize: "1.4rem", fontWeight: 900, color: "#111", letterSpacing: "-0.5px" }}>
                         Pet<span style={{ color: "#ff6b35" }}>QR</span>
                     </Link>
-                    <button onClick={logout}
-                        style={{ background: "none", border: "1.5px solid #e0e0e0", borderRadius: 10, padding: "0.4rem 1.1rem", fontWeight: 600, fontSize: "0.88rem", color: "#555", cursor: "pointer" }}>
-                        Cerrar sesión
-                    </button>
+                    <div className="d-flex align-items-center gap-3">
+                        <Link to="/mascotas" style={{ color: "#666", textDecoration: "none", fontWeight: 500, fontSize: "0.9rem" }}>
+                            Galería
+                        </Link>
+                        <button onClick={logout}
+                            style={{ background: "#111", color: "#fff", border: "none", borderRadius: 10, padding: "0.45rem 1.2rem", fontWeight: 600, fontSize: "0.88rem", cursor: "pointer" }}>
+                            Cerrar sesión
+                        </button>
+                    </div>
                 </div>
             </nav>
 
-            <div className="container py-5">
-
-                {/* Header */}
-                <div className="d-flex justify-content-between align-items-center mb-5">
+            {/* Banner superior */}
+            <div style={{
+                background: "linear-gradient(135deg, #111 0%, #1c1c1c 100%)",
+                padding: "3rem 0 2.5rem",
+            }}>
+                <div className="container d-flex justify-content-between align-items-center flex-wrap gap-3">
                     <div>
-                        <h2 style={{ fontWeight: 800, fontSize: "2rem", letterSpacing: "-0.5px", marginBottom: "0.2rem" }}>Mis mascotas</h2>
-                        <p style={{ color: "#999", margin: 0, fontSize: "0.95rem" }}>
-                            {loading ? "Cargando..." : pets.length === 0 ? "Aún no tienes mascotas registradas"
+                        <p style={{ color: "rgba(255,255,255,0.45)", fontSize: "0.85rem", margin: 0, marginBottom: "0.3rem", letterSpacing: "0.5px" }}>
+                            Bienvenido de vuelta 👋
+                        </p>
+                        <h1 style={{ color: "#fff", fontWeight: 900, fontSize: "clamp(1.6rem, 3vw, 2.2rem)", letterSpacing: "-0.5px", margin: 0 }}>
+                            Mis <span style={{ color: "#ff6b35" }}>mascotas</span>
+                        </h1>
+                        <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.9rem", margin: "0.4rem 0 0" }}>
+                            {loading ? "Cargando..." : pets.length === 0
+                                ? "Aún no tienes mascotas registradas"
                                 : `${pets.length} mascota${pets.length !== 1 ? "s" : ""} registrada${pets.length !== 1 ? "s" : ""}`}
                         </p>
                     </div>
                     <button onClick={() => { setFormError(null); setShowAdd(true); }}
                         style={{
                             background: "#ff6b35", color: "#fff", border: "none", borderRadius: 14,
-                            padding: "0.65rem 1.4rem", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer",
-                            boxShadow: "0 4px 16px rgba(255,107,53,0.35)",
-                        }}>
+                            padding: "0.75rem 1.6rem", fontWeight: 700, fontSize: "0.95rem", cursor: "pointer",
+                            boxShadow: "0 4px 20px rgba(255,107,53,0.4)",
+                            transition: "transform 0.15s",
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-2px)"}
+                        onMouseLeave={(e) => e.currentTarget.style.transform = "translateY(0)"}
+                    >
                         + Agregar mascota
                     </button>
                 </div>
+            </div>
+
+            <div className="container py-5">
 
                 {/* Loading */}
                 {loading && (
@@ -407,11 +427,22 @@ function Dashboard() {
                 {/* Empty state */}
                 {!loading && pets.length === 0 && (
                     <div className="text-center py-5">
-                        <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🐾</div>
-                        <h5 style={{ fontWeight: 700, color: "#333" }}>Aún no tienes mascotas</h5>
-                        <p style={{ color: "#999", marginBottom: "1.5rem" }}>Registra tu primera mascota y genera su código QR</p>
+                        <div style={{
+                            width: 100, height: 100, borderRadius: "50%",
+                            background: "#fff", boxShadow: "0 8px 32px rgba(0,0,0,0.08)",
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            margin: "0 auto 1.5rem", fontSize: "2.8rem",
+                        }}>🐾</div>
+                        <h4 style={{ fontWeight: 800, color: "#222", marginBottom: "0.5rem" }}>Aún no tienes mascotas</h4>
+                        <p style={{ color: "#999", marginBottom: "2rem", maxWidth: 340, margin: "0 auto 2rem" }}>
+                            Registra tu primera mascota, sube su foto y genera su código QR único.
+                        </p>
                         <button onClick={() => { setFormError(null); setShowAdd(true); }}
-                            style={{ background: "#ff6b35", color: "#fff", border: "none", borderRadius: 14, padding: "0.75rem 2rem", fontWeight: 700, cursor: "pointer", fontSize: "0.95rem" }}>
+                            style={{
+                                background: "#ff6b35", color: "#fff", border: "none", borderRadius: 14,
+                                padding: "0.85rem 2.2rem", fontWeight: 700, cursor: "pointer", fontSize: "1rem",
+                                boxShadow: "0 4px 16px rgba(255,107,53,0.35)",
+                            }}>
                             + Registrar primera mascota
                         </button>
                     </div>
@@ -424,49 +455,68 @@ function Dashboard() {
                             <div className="col-sm-6 col-md-4 col-lg-3" key={pet.id}>
                                 <div style={{
                                     background: "#fff", borderRadius: 20, overflow: "hidden",
-                                    boxShadow: "0 4px 20px rgba(0,0,0,0.07)",
+                                    boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
                                     transition: "transform 0.2s, box-shadow 0.2s",
-                                    display: "flex", flexDirection: "column",
+                                    display: "flex", flexDirection: "column", height: "100%",
                                 }}
-                                    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-4px)"; e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.12)"; }}
-                                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(0,0,0,0.07)"; }}
+                                    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = "0 16px 40px rgba(0,0,0,0.13)"; }}
+                                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.07)"; }}
                                 >
-                                    <img
-                                        src={pet.photo_url || "https://placehold.co/300x220?text=🐾"}
-                                        alt={pet.name}
-                                        style={{ width: "100%", height: 200, objectFit: "cover" }}
-                                    />
-                                    <div style={{ padding: "1rem 1.1rem 0.8rem" }}>
-                                        <h5 style={{ fontWeight: 800, margin: 0, marginBottom: "0.2rem" }}>{pet.name}</h5>
-                                        {pet.breed && <p style={{ color: "#999", fontSize: "0.85rem", margin: 0 }}>{pet.breed}</p>}
+                                    {/* Imagen con overlay */}
+                                    <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
+                                        <img
+                                            src={pet.photo_url || "https://placehold.co/300x220?text=🐾"}
+                                            alt={pet.name}
+                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                                        />
+                                        {pet.species && (
+                                            <span style={{
+                                                position: "absolute", top: 10, left: 10,
+                                                background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
+                                                color: "#fff", fontSize: "0.72rem", fontWeight: 600,
+                                                padding: "3px 10px", borderRadius: 999,
+                                            }}>
+                                                {pet.species}
+                                            </span>
+                                        )}
+                                    </div>
+
+                                    {/* Info */}
+                                    <div style={{ padding: "1rem 1.2rem 0.6rem", flex: 1 }}>
+                                        <h5 style={{ fontWeight: 800, margin: 0, marginBottom: "0.25rem", fontSize: "1.05rem" }}>
+                                            {pet.name}
+                                        </h5>
+                                        <div className="d-flex flex-wrap gap-1">
+                                            {pet.breed && (
+                                                <span style={{ background: "#f5f5f7", color: "#666", fontSize: "0.75rem", padding: "2px 8px", borderRadius: 999, fontWeight: 500 }}>
+                                                    {pet.breed}
+                                                </span>
+                                            )}
+                                            {pet.sex && (
+                                                <span style={{ background: "#f5f5f7", color: "#666", fontSize: "0.75rem", padding: "2px 8px", borderRadius: 999, fontWeight: 500 }}>
+                                                    {pet.sex}
+                                                </span>
+                                            )}
+                                            {pet.age && (
+                                                <span style={{ background: "#f5f5f7", color: "#666", fontSize: "0.75rem", padding: "2px 8px", borderRadius: 999, fontWeight: 500 }}>
+                                                    {pet.age}
+                                                </span>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {/* Acciones */}
-                                    <div style={{ padding: "0 1.1rem 1rem", display: "flex", gap: "0.5rem", marginTop: "auto" }}>
-                                        <button
-                                            onClick={() => { setFormError(null); setEditPet(pet); }}
-                                            style={{
-                                                flex: 1, background: "#f5f5f7", border: "none",
-                                                borderRadius: 10, padding: "0.45rem",
-                                                fontSize: "0.82rem", fontWeight: 600, color: "#333", cursor: "pointer",
-                                                transition: "background 0.15s",
-                                            }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = "#e8e8e8"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "#f5f5f7"}
-                                        >
+                                    <div style={{ padding: "0.6rem 1rem 1rem", display: "flex", gap: "0.5rem" }}>
+                                        <button onClick={() => { setFormError(null); setEditPet(pet); }}
+                                            style={{ flex: 1, background: "#f5f5f7", border: "none", borderRadius: 10, padding: "0.5rem", fontSize: "0.82rem", fontWeight: 600, color: "#333", cursor: "pointer" }}
+                                            onMouseEnter={(e) => e.currentTarget.style.background = "#eaeaea"}
+                                            onMouseLeave={(e) => e.currentTarget.style.background = "#f5f5f7"}>
                                             ✏️ Editar
                                         </button>
-                                        <button
-                                            onClick={() => setDeletePet(pet)}
-                                            style={{
-                                                flex: 1, background: "#fff0ee", border: "none",
-                                                borderRadius: 10, padding: "0.45rem",
-                                                fontSize: "0.82rem", fontWeight: 600, color: "#e74c3c", cursor: "pointer",
-                                                transition: "background 0.15s",
-                                            }}
+                                        <button onClick={() => setDeletePet(pet)}
+                                            style={{ flex: 1, background: "#fff0ee", border: "none", borderRadius: 10, padding: "0.5rem", fontSize: "0.82rem", fontWeight: 600, color: "#e74c3c", cursor: "pointer" }}
                                             onMouseEnter={(e) => e.currentTarget.style.background = "#ffddd9"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "#fff0ee"}
-                                        >
+                                            onMouseLeave={(e) => e.currentTarget.style.background = "#fff0ee"}>
                                             🗑️ Eliminar
                                         </button>
                                     </div>

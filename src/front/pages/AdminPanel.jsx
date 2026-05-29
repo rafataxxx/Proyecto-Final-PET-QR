@@ -156,15 +156,10 @@ function AdminPanel() {
                             Admin
                         </span>
                     </div>
-                    <div className="d-flex gap-3 align-items-center">
-                        <Link to="/dashboard" style={{ color: "rgba(255,255,255,0.6)", textDecoration: "none", fontSize: "0.88rem" }}>
-                            Mi dashboard
-                        </Link>
-                        <button onClick={logout}
-                            style={{ background: "none", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "0.35rem 1rem", color: "rgba(255,255,255,0.7)", fontSize: "0.85rem", cursor: "pointer" }}>
-                            Cerrar sesión
-                        </button>
-                    </div>
+                    <button onClick={logout}
+                        style={{ background: "none", border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8, padding: "0.35rem 1rem", color: "rgba(255,255,255,0.7)", fontSize: "0.85rem", cursor: "pointer" }}>
+                        Cerrar sesión
+                    </button>
                 </div>
             </nav>
 
