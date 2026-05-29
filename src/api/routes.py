@@ -48,7 +48,10 @@ def login():
 
     access_token = create_access_token(identity=str(user.id))
 
-    return jsonify({"access_token": access_token}), 200
+    return jsonify({
+        "access_token": access_token,
+        "is_admin": user.is_admin
+    }), 200
 
 
 @api.route('/pet/public/<int:pet_id>', methods=['GET'])
@@ -158,6 +161,60 @@ def update_pet(pet_id):
 def delete_pet(pet_id):
     user_id = get_jwt_identity()
     pet = Pet.query.filter_by(id=pet_id, owner_id=user_id).first()
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+    db.session.delete(pet)
+    db.session.commit()
+    return jsonify({"msg": "Mascota eliminada"}), 200
+
+# ── ADMIN ENDPOINTS ─────────────────────────────────────────────────────────
+def admin_required():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user or not user.is_admin:
+        return None, True
+    return user, False
+
+@api.route('/admin/pets', methods=['GET'])
+@jwt_required()
+def admin_get_all_pets():
+    user, denied = admin_required()
+    if denied:
+        return jsonify({"msg": "Acceso denegado"}), 403
+    pets = Pet.query.all()
+    result = []
+    for pet in pets:
+        data = pet.serialize()
+        data['owner_email'] = pet.owner.email if pet.owner else "—"
+        result.append(data)
+    return jsonify(result), 200
+
+@api.route('/admin/pets/<int:pet_id>', methods=['PUT'])
+@jwt_required()
+def admin_update_pet(pet_id):
+    user, denied = admin_required()
+    if denied:
+        return jsonify({"msg": "Acceso denegado"}), 403
+    pet = Pet.query.get(pet_id)
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+    body = request.get_json()
+    pet.name = body.get('name', pet.name)
+    pet.breed = body.get('breed', pet.breed)
+    pet.clinical_info = body.get('clinical_info', pet.clinical_info)
+    pet.photo_url = body.get('photo_url', pet.photo_url)
+    db.session.commit()
+    data = pet.serialize()
+    data['owner_email'] = pet.owner.email if pet.owner else "—"
+    return jsonify(data), 200
+
+@api.route('/admin/pets/<int:pet_id>', methods=['DELETE'])
+@jwt_required()
+def admin_delete_pet(pet_id):
+    user, denied = admin_required()
+    if denied:
+        return jsonify({"msg": "Acceso denegado"}), 403
+    pet = Pet.query.get(pet_id)
     if not pet:
         return jsonify({"msg": "Mascota no encontrada"}), 404
     db.session.delete(pet)

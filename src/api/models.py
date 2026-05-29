@@ -7,15 +7,16 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     is_active = db.Column(db.Boolean(), default=True)
-    
+    is_admin = db.Column(db.Boolean(), default=False)
+
     pets = db.relationship('Pet', backref='owner', lazy=True)
 
     def serialize(self):
         return {
             "id": self.id,
             "email": self.email,
-            "is_active": self.is_active
-            # ¡Nunca serialices la contraseña por seguridad!
+            "is_active": self.is_active,
+            "is_admin": self.is_admin
         }
 
 #class Pet(db.Model):

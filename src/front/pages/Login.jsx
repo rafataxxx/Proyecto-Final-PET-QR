@@ -27,7 +27,7 @@ function Login() {
             });
             const data = await res.json();
             if (!res.ok) throw new Error(data.msg || "Error al iniciar sesión");
-            login(data.access_token);
+            login(data.access_token, false);
             navigate("/dashboard");
         } catch (err) {
             setError(err.message);

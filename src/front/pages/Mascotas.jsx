@@ -104,7 +104,7 @@ function Mascotas() {
                     Si encontraste una, escanea su collar para ver sus datos.
                 </p>
                 <Link
-                    to="/register"
+                    to="/login"
                     style={{
                         background: "#ff6b35",
                         color: "#fff",
