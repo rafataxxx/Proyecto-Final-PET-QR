@@ -133,6 +133,11 @@ def create_pet():
     new_pet = Pet(
         name=body.get('name'),
         breed=body.get('breed'),
+        species=body.get('species'),
+        color=body.get('color'),
+        sex=body.get('sex'),
+        age=body.get('age'),
+        contact=body.get('contact'),
         clinical_info=body.get('clinical_info'),
         photo_url=body.get('photo_url'),
         owner_id=user_id
@@ -151,6 +156,11 @@ def update_pet(pet_id):
     body = request.get_json()
     pet.name = body.get('name', pet.name)
     pet.breed = body.get('breed', pet.breed)
+    pet.species = body.get('species', pet.species)
+    pet.color = body.get('color', pet.color)
+    pet.sex = body.get('sex', pet.sex)
+    pet.age = body.get('age', pet.age)
+    pet.contact = body.get('contact', pet.contact)
     pet.clinical_info = body.get('clinical_info', pet.clinical_info)
     pet.photo_url = body.get('photo_url', pet.photo_url)
     db.session.commit()
@@ -201,6 +211,11 @@ def admin_update_pet(pet_id):
     body = request.get_json()
     pet.name = body.get('name', pet.name)
     pet.breed = body.get('breed', pet.breed)
+    pet.species = body.get('species', pet.species)
+    pet.color = body.get('color', pet.color)
+    pet.sex = body.get('sex', pet.sex)
+    pet.age = body.get('age', pet.age)
+    pet.contact = body.get('contact', pet.contact)
     pet.clinical_info = body.get('clinical_info', pet.clinical_info)
     pet.photo_url = body.get('photo_url', pet.photo_url)
     db.session.commit()
