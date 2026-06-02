@@ -57,29 +57,42 @@ def login():
         return jsonify({"msg": f"Error interno: {str(e)}"}), 500
 
 
+@api.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    body = request.get_json(force=True)
+    email = body.get('email')
+
+    if not email:
+        return jsonify({"msg": "El correo electrónico es obligatorio"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    
+    if user:
+       
+        temporal_password = "PetQRProvisional123*"
+        
+        user.password = generate_password_hash(temporal_password)
+        db.session.commit()
+
 @api.route('/pet/public/<int:pet_id>', methods=['GET'])
 def get_public_pet(pet_id):
-    # Buscamos a la mascota por su ID
     pet = Pet.query.get(pet_id)
     
     if not pet:
         return jsonify({"msg": "Mascota no encontrada"}), 404
         
-    # Devolvemos SOLO la información pública y necesaria para un rescate
     return jsonify({
         "name": pet.name,
         "breed": pet.breed,
         "photo_url": pet.photo_url,
         "clinical_info": pet.clinical_info,
-        # NO enviamos el password del dueño ni datos privados sensibles
     }), 200
 
 @api.route('/pets/gallery', methods=['GET'])
 def get_pets_gallery():
-    # 1. Buscamos todas las mascotas registradas en la base de datos
+
     pets = Pet.query.all()
     
-    # 2. Filtramos y empaquetamos SOLO la información pública (Minimización de datos)
     gallery = []
     for pet in pets:
         gallery.append({
