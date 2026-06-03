@@ -11,6 +11,36 @@ function Login() {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
 
+    const [showForgot, setShowForgot] = useState(false);
+    const [forgotEmail, setForgotEmail] = useState("");
+    const [forgotLoading, setForgotLoading] = useState(false);
+    const [forgotResult, setForgotResult] = useState(null); // { success, tempPassword }
+
+    const handleForgotSubmit = async (e) => {
+        e.preventDefault();
+        setForgotLoading(true);
+        try {
+            const res = await fetch("/api/forgot-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: forgotEmail }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.msg || "Error al restablecer");
+            setForgotResult({ success: true, tempPassword: data.temp_password });
+        } catch (err) {
+            setForgotResult({ success: false, error: err.message });
+        } finally {
+            setForgotLoading(false);
+        }
+    };
+
+    const closeForgot = () => {
+        setShowForgot(false);
+        setForgotEmail("");
+        setForgotResult(null);
+    };
+
     const handleChange = (e) =>
         setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -42,6 +72,7 @@ function Login() {
     };
 
     return (
+        <>
         <div className="d-flex" style={{ minHeight: "100vh" }}>
 
             {/* Left panel — dark + image */}
@@ -137,16 +168,33 @@ function Login() {
                         </div>
 
                         <div className="mb-4">
-                            <label
-                                className="form-label fw-semibold"
-                                style={{ fontSize: "0.9rem" }}
-                            >
-                                Contraseña
-                            </label>
+                            <div className="d-flex justify-content-between align-items-center">
+                                <label
+                                    className="form-label fw-semibold mb-0"
+                                    style={{ fontSize: "0.9rem" }}
+                                >
+                                    Contraseña
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowForgot(true)}
+                                    style={{
+                                        background: "none",
+                                        border: "none",
+                                        color: "#ff6b35",
+                                        fontSize: "0.82rem",
+                                        fontWeight: 600,
+                                        cursor: "pointer",
+                                        padding: 0,
+                                    }}
+                                >
+                                    ¿Olvidaste tu contraseña?
+                                </button>
+                            </div>
                             <input
                                 type="password"
                                 name="password"
-                                className="form-control form-control-lg"
+                                className="form-control form-control-lg mt-1"
                                 placeholder="••••••••"
                                 value={form.password}
                                 onChange={handleChange}
@@ -195,6 +243,130 @@ function Login() {
                 </div>
             </div>
         </div>
+        {/* Modal forgot password */}
+        {showForgot && (
+            <div
+                style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "rgba(0,0,0,0.5)",
+                    zIndex: 1050,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: "1rem",
+                }}
+                onClick={(e) => { if (e.target === e.currentTarget) closeForgot(); }}
+            >
+                <div
+                    style={{
+                        background: "#fff",
+                        borderRadius: 20,
+                        padding: "2rem",
+                        width: "100%",
+                        maxWidth: 420,
+                        boxShadow: "0 20px 60px rgba(0,0,0,0.2)",
+                    }}
+                >
+                    {!forgotResult ? (
+                        <>
+                            <h5 className="fw-bold mb-1" style={{ fontSize: "1.3rem" }}>
+                                Restablecer contraseña
+                            </h5>
+                            <p className="text-secondary mb-4" style={{ fontSize: "0.9rem" }}>
+                                Ingresa tu correo y te daremos una contraseña temporal para que puedas ingresar.
+                            </p>
+                            <form onSubmit={handleForgotSubmit}>
+                                <input
+                                    type="email"
+                                    className="form-control form-control-lg mb-3"
+                                    placeholder="tu@correo.com"
+                                    value={forgotEmail}
+                                    onChange={(e) => setForgotEmail(e.target.value)}
+                                    style={{
+                                        borderRadius: 12,
+                                        border: "1.5px solid #e0e0e0",
+                                    }}
+                                    required
+                                    autoFocus
+                                />
+                                <button
+                                    type="submit"
+                                    className="btn-orange w-100"
+                                    disabled={forgotLoading}
+                                    style={{
+                                        fontSize: "1rem",
+                                        padding: "0.85rem",
+                                        borderRadius: 14,
+                                        border: "none",
+                                        cursor: forgotLoading ? "not-allowed" : "pointer",
+                                        opacity: forgotLoading ? 0.7 : 1,
+                                    }}
+                                >
+                                    {forgotLoading ? "Restableciendo..." : "Restablecer contraseña"}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={closeForgot}
+                                    className="btn w-100 mt-2"
+                                    style={{ borderRadius: 14, color: "#666" }}
+                                >
+                                    Cancelar
+                                </button>
+                            </form>
+                        </>
+                    ) : forgotResult.success ? (
+                        <>
+                            <div className="text-center mb-3" style={{ fontSize: "2.5rem" }}>🔑</div>
+                            <h5 className="fw-bold text-center mb-2">¡Contraseña restablecida!</h5>
+                            <p className="text-secondary text-center mb-3" style={{ fontSize: "0.9rem" }}>
+                                Tu contraseña temporal es:
+                            </p>
+                            <div
+                                className="text-center fw-bold mb-4"
+                                style={{
+                                    background: "#fff4ef",
+                                    border: "2px solid #ff6b35",
+                                    borderRadius: 12,
+                                    padding: "0.9rem",
+                                    fontSize: "1.1rem",
+                                    letterSpacing: "0.5px",
+                                    color: "#ff6b35",
+                                    userSelect: "all",
+                                }}
+                            >
+                                {forgotResult.tempPassword}
+                            </div>
+                            <p className="text-secondary text-center mb-4" style={{ fontSize: "0.85rem" }}>
+                                Inicia sesión con esta contraseña y cámbiala desde tu perfil.
+                            </p>
+                            <button
+                                onClick={closeForgot}
+                                className="btn-orange w-100"
+                                style={{
+                                    fontSize: "1rem",
+                                    padding: "0.85rem",
+                                    borderRadius: 14,
+                                    border: "none",
+                                    cursor: "pointer",
+                                }}
+                            >
+                                Entendido, ir a iniciar sesión
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <h5 className="fw-bold text-center mb-2">Error</h5>
+                            <p className="text-danger text-center mb-4">{forgotResult.error}</p>
+                            <button onClick={closeForgot} className="btn btn-secondary w-100" style={{ borderRadius: 14 }}>
+                                Cerrar
+                            </button>
+                        </>
+                    )}
+                </div>
+            </div>
+        )}
+        </>
     );
 }
 

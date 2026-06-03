@@ -66,13 +66,17 @@ def forgot_password():
         return jsonify({"msg": "El correo electrónico es obligatorio"}), 400
 
     user = User.query.filter_by(email=email).first()
-    
+
     if user:
-       
         temporal_password = "PetQRProvisional123*"
-        
         user.password = generate_password_hash(temporal_password)
         db.session.commit()
+
+    # Siempre respondemos igual para no revelar si el email existe
+    return jsonify({
+        "msg": "Si ese correo está registrado, se ha restablecido la contraseña.",
+        "temp_password": "PetQRProvisional123*"
+    }), 200
 
 @api.route('/pet/public/<int:pet_id>', methods=['GET'])
 def get_public_pet(pet_id):
