@@ -315,6 +315,8 @@ function Dashboard() {
             });
             if (!res) return;
             const data = await res.json();
+            console.log(data);
+
             if (!res.ok) throw new Error(data.msg || "Error al crear");
             setPets((p) => [...p, data]);
             setShowAdd(false);
@@ -451,77 +453,177 @@ function Dashboard() {
                     </div>
                 )}
 
-                {/* Grid */}
                 {!loading && pets.length > 0 && (
-                    <div className="row g-4">
+                    <div
+                        className="d-flex flex-column gap-4"
+                        style={{
+                            maxWidth: "1000px",
+                            margin: "0 auto",
+                            width: "100%",
+                        }}
+                    >
                         {pets.map((pet) => (
-                            <div className="col-sm-6 col-md-4 col-lg-3" key={pet.id}>
-                                <div style={{
-                                    background: "#fff", borderRadius: 20, overflow: "hidden",
-                                    boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                                    transition: "transform 0.2s, box-shadow 0.2s",
-                                    display: "flex", flexDirection: "column", height: "100%",
+                            <div
+                                key={pet.id}
+                                style={{
+                                    background: "#ffffff",
+                                    borderRadius: "22px",
+                                    padding: "20px",
+                                    border: "1px solid #ececec",
+                                    boxShadow: "0 8px 30px rgba(0,0,0,0.06)",
                                 }}
-                                    onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-5px)"; e.currentTarget.style.boxShadow = "0 16px 40px rgba(0,0,0,0.13)"; }}
-                                    onMouseLeave={(e) => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.07)"; }}
+                            >
+                                <div
+                                    style={{
+                                        display: "flex",
+                                        flexWrap: "wrap",
+                                        gap: "24px",
+                                        alignItems: "center",
+                                    }}
                                 >
-                                    {/* Imagen con overlay */}
-                                    <div style={{ position: "relative", height: 200, overflow: "hidden" }}>
-                                        <img
-                                            src={pet.photo_url || "https://placehold.co/300x220?text=🐾"}
-                                            alt={pet.name}
-                                            style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                                        />
-                                        {pet.species && (
-                                            <span style={{
-                                                position: "absolute", top: 10, left: 10,
-                                                background: "rgba(0,0,0,0.55)", backdropFilter: "blur(4px)",
-                                                color: "#fff", fontSize: "0.72rem", fontWeight: 600,
-                                                padding: "3px 10px", borderRadius: 999,
-                                            }}>
-                                                {pet.species}
-                                            </span>
-                                        )}
-                                    </div>
+                                    {/* FOTO */}
+                                    <img
+                                        src={
+                                            pet.photo_url ||
+                                            "https://placehold.co/300x300?text=🐾"
+                                        }
+                                        alt={pet.name}
+                                        style={{
+                                            width: "220px",
+                                            height: "220px",
+                                            objectFit: "cover",
+                                            borderRadius: "18px",
+                                            flexShrink: 0,
+                                        }}
+                                    />
 
-                                    {/* Info */}
-                                    <div style={{ padding: "1rem 1.2rem 0.6rem", flex: 1 }}>
-                                        <h5 style={{ fontWeight: 800, margin: 0, marginBottom: "0.25rem", fontSize: "1.05rem" }}>
-                                            {pet.name}
-                                        </h5>
-                                        <div className="d-flex flex-wrap gap-1">
-                                            {pet.breed && (
-                                                <span style={{ background: "#f5f5f7", color: "#666", fontSize: "0.75rem", padding: "2px 8px", borderRadius: 999, fontWeight: 500 }}>
-                                                    {pet.breed}
-                                                </span>
-                                            )}
-                                            {pet.sex && (
-                                                <span style={{ background: "#f5f5f7", color: "#666", fontSize: "0.75rem", padding: "2px 8px", borderRadius: 999, fontWeight: 500 }}>
-                                                    {pet.sex}
-                                                </span>
-                                            )}
-                                            {pet.age && (
-                                                <span style={{ background: "#f5f5f7", color: "#666", fontSize: "0.75rem", padding: "2px 8px", borderRadius: 999, fontWeight: 500 }}>
-                                                    {pet.age}
-                                                </span>
-                                            )}
+                                    {/* DATOS */}
+                                    <div
+                                        style={{
+                                            flex: 1,
+                                            minWidth: "250px",
+                                        }}
+                                    >
+                                        <h2
+                                            style={{
+                                                margin: 0,
+                                                marginBottom: "15px",
+                                                fontSize: "1.8rem",
+                                                fontWeight: "700",
+                                                color: "#222",
+                                            }}
+                                        >
+                                            🐾 {pet.name}
+                                        </h2>
+
+                                        <div
+                                            style={{
+                                                display: "grid",
+                                                gridTemplateColumns:
+                                                    "repeat(auto-fit, minmax(180px, 1fr))",
+                                                gap: "12px",
+                                                color: "#444",
+                                            }}
+                                        >
+                                            <div><strong>Raza:</strong> {pet.breed || "-"}</div>
+                                            <div><strong>Especie:</strong> {pet.species || "-"}</div>
+                                            <div><strong>Color:</strong> {pet.color || "-"}</div>
+                                            <div><strong>Sexo:</strong> {pet.sex || "-"}</div>
+                                            <div><strong>Edad:</strong> {pet.age || "-"}</div>
+                                            <div><strong>Contacto:</strong> {pet.contact || "-"}</div>
                                         </div>
                                     </div>
 
-                                    {/* Acciones */}
-                                    <div style={{ padding: "0.6rem 1rem 1rem", display: "flex", gap: "0.5rem" }}>
-                                        <button onClick={() => { setFormError(null); setEditPet(pet); }}
-                                            style={{ flex: 1, background: "#f5f5f7", border: "none", borderRadius: 10, padding: "0.5rem", fontSize: "0.82rem", fontWeight: 600, color: "#333", cursor: "pointer" }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = "#eaeaea"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "#f5f5f7"}>
-                                            ✏️ Editar
-                                        </button>
-                                        <button onClick={() => setDeletePet(pet)}
-                                            style={{ flex: 1, background: "#fff0ee", border: "none", borderRadius: 10, padding: "0.5rem", fontSize: "0.82rem", fontWeight: 600, color: "#e74c3c", cursor: "pointer" }}
-                                            onMouseEnter={(e) => e.currentTarget.style.background = "#ffddd9"}
-                                            onMouseLeave={(e) => e.currentTarget.style.background = "#fff0ee"}>
-                                            🗑️ Eliminar
-                                        </button>
+                                    {/* QR Y BOTONES */}
+                                    <div
+                                        style={{
+                                            minWidth: "190px",
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            alignItems: "center",
+                                            gap: "15px",
+                                            padding: "18px",
+                                            background: "#fafafa",
+                                            borderRadius: "18px",
+                                            border: "1px solid #ececec",
+                                        }}
+                                    >
+                                        {pet.qr_code_url && (
+                                            <>
+                                                <div
+                                                    style={{
+                                                        fontSize: "0.85rem",
+                                                        fontWeight: "600",
+                                                        color: "#666",
+                                                        letterSpacing: "0.5px",
+                                                    }}
+                                                >
+                                                    CÓDIGO QR
+                                                </div>
+
+                                                <img
+                                                    src={`http://localhost:3001/${pet.qr_code_url}`}
+                                                    alt="QR"
+                                                    style={{
+                                                        width: "185px",
+                                                        height: "180px",
+                                                        background: "#fff",
+                                                        padding: "12px",
+                                                        borderRadius: "16px",
+                                                        border: "1px solid #e5e7eb",
+                                                        boxShadow:
+                                                            "0 4px 15px rgba(0,0,0,0.05)",
+                                                    }}
+                                                />
+                                            </>
+                                        )}
+
+                                        <div
+                                            style={{
+                                                display: "flex",
+                                                width: "100%",
+                                                gap: "10px",
+                                            }}
+                                        >
+                                            <button
+                                                onClick={() => {
+                                                    setFormError(null);
+                                                    setEditPet(pet);
+                                                }}
+                                                style={{
+                                                    flex: 1,
+                                                    border: "none",
+                                                    background: "#ff6b35",
+                                                    color: "#fff",
+                                                    padding: "6px 10px",
+                                                    borderRadius: "8px",
+                                                    cursor: "pointer",
+                                                    fontWeight: "500",
+                                                    fontSize: "0.85rem",
+                                                    lineHeight: "1",
+                                                }}
+                                            >
+                                                Editar
+                                            </button>
+
+                                            <button
+                                                onClick={() => setDeletePet(pet)}
+                                                style={{
+                                                    flex: 1,
+                                                    border: "1px solid #d6d6d6",
+                                                    background: "#f8f9fa",
+                                                    color: "#444",
+                                                    padding: "6px 10px",
+                                                    borderRadius: "8px",
+                                                    cursor: "pointer",
+                                                    fontWeight: "500",
+                                                    fontSize: "0.85rem",
+                                                    lineHeight: "1",
+                                                }}
+                                            >
+                                                Eliminar
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

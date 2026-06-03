@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 from werkzeug.security import generate_password_hash, check_password_hash
 import cloudinary.uploader 
 from api.models import Pet
+from api.qr_generator import generate_pet_qr
 
 api = Blueprint('api', __name__)
 
@@ -131,8 +132,10 @@ def get_my_pets():
 @api.route('/pets', methods=['POST'])
 @jwt_required()
 def create_pet():
+
     user_id = get_jwt_identity()
     body = request.get_json()
+
     new_pet = Pet(
         name=body.get('name'),
         breed=body.get('breed'),
@@ -145,8 +148,16 @@ def create_pet():
         photo_url=body.get('photo_url'),
         owner_id=user_id
     )
+
     db.session.add(new_pet)
     db.session.commit()
+
+    qr_url = generate_pet_qr(new_pet.id)
+
+    new_pet.qr_code_url = qr_url
+
+    db.session.commit()
+
     return jsonify(new_pet.serialize()), 201
 
 @api.route('/pets/<int:pet_id>', methods=['PUT'])
