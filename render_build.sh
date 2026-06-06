@@ -9,4 +9,4 @@ pip install pipenv
 
 pipenv install
 
-pipenv run upgrade
+#pipenv run upgrade
