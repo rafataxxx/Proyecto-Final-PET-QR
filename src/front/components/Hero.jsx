@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import heroImg from "../public/hero.png";
 
 function Hero({ onOpenModal }) {
+    const navigate = useNavigate();
     return (
         <section className="hero-section" id="inicio">
             <div className="container">
@@ -24,7 +26,7 @@ function Hero({ onOpenModal }) {
                             <button
                                 className="btn-orange btn-lg"
                                 type="button"
-                                onClick={() => onOpenModal?.("register")}
+                                onClick={() => navigate("/register")}
                             >
                                 Registra tu mascota
                             </button>
