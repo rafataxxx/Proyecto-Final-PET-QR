@@ -159,14 +159,17 @@ function PetForm({ initial = {}, loading, error, onSubmit, submitLabel }) {
                 <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
                     Sexo
                 </label>
-                <input
-                    type="text"
+                <select
                     name="sex"
                     value={form.sex}
                     onChange={handleChange}
                     className="form-control form-control-lg"
                     style={inputStyle}
-                />
+                >
+                    <option value="">Seleccionar</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
             </div>
 
             <div className="mb-3">
@@ -356,34 +359,17 @@ function Dashboard() {
                     photo_url
                 }),
             });
+            if (!res) return;
+            const data = await res.json();
+            console.log(data);
 
-            if (!res) {
-                throw new Error("No se recibió respuesta del servidor");
-            }
-
-            const text = await res.text();
-
-            let data;
-            try {
-                data = JSON.parse(text);
-            } catch {
-                throw new Error("El servidor no devolvió JSON válido");
-            }
-
-            if (!res.ok) {
-                throw new Error(data.msg || "Error al crear mascota");
-            }
-
+            if (!res.ok) throw new Error(data.msg || "Error al crear");
             setPets((p) => [...p, data]);
             setShowAdd(false);
 
             showToast(`¡${data.name} agregado correctamente! 🐾`);
-
-        } catch (err) {
-            setFormError(err.message);
-        } finally {
-            setFormLoading(false);
-        }
+        } catch (err) { setFormError(err.message); }
+        finally { setFormLoading(false); }
     };
 
     // ── Editar mascota ──────────────────────────────────────────────────────
@@ -738,6 +724,30 @@ function Dashboard() {
                                                 </button>
                                             </>
                                         )}
+
+                                        <Link
+                                            to={`/pets/${pet.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{
+                                                width: "100%",
+                                                display: "block",
+                                                textAlign: "center",
+                                                border: "1.5px solid #ff6b35",
+                                                background: "transparent",
+                                                color: "#ff6b35",
+                                                padding: "6px 10px",
+                                                borderRadius: "8px",
+                                                fontWeight: "600",
+                                                fontSize: "0.85rem",
+                                                textDecoration: "none",
+                                                transition: "background 0.2s",
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = "#fff4f0"; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                                        >
+                                            Ver perfil público
+                                        </Link>
 
                                         <div
                                             style={{
