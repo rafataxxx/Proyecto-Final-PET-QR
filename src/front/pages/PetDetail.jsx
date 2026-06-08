@@ -39,9 +39,48 @@ export default function PetDetail() {
     if (!pet) return <p>Cargando...</p>;
 
     return (
-        <div style={{ padding: 20 }}>
-            <h1>{pet.name}</h1>
-            <pre>{JSON.stringify(pet, null, 2)}</pre>
+        <div style={styles.page}>
+
+            <div style={styles.card}>
+
+                {/* FOTO */}
+                <div style={styles.imageBox}>
+                    {pet.photo_url ? (
+                        <img
+                            src={pet.photo_url}
+                            alt={pet.name}
+                            style={styles.image}
+                        />
+                    ) : (
+                        <div style={styles.noImage}>🐾 Sin foto</div>
+                    )}
+                </div>
+
+                {/* INFO */}
+                <div style={styles.info}>
+                    <h1 style={styles.name}>🐶 {pet.name}</h1>
+
+                    <div style={styles.grid}>
+                        <p><b>Especie:</b> {pet.species}</p>
+                        <p><b>Raza:</b> {pet.breed}</p>
+                        <p><b>Color:</b> {pet.color}</p>
+                        <p><b>Edad:</b> {pet.age}</p>
+                    </div>
+
+                    <div style={styles.section}>
+                        <p><b>📞 Contacto:</b></p>
+                        <span>{pet.contact}</span>
+                    </div>
+
+                    {pet.clinical_info && (
+                        <div style={styles.section}>
+                            <p><b>🩺 Información clínica</b></p>
+                            <p style={{ fontSize: 14 }}>{pet.clinical_info}</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
         </div>
     );
 }
