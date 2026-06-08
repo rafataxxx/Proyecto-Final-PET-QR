@@ -12,25 +12,12 @@ from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 from datetime import timedelta
 from urllib.parse import urlparse
-import cloudinary
 from flask import jsonify
 from api.models import db, Pet
 
 
 # 1. FORZAMOS LA LECTURA DEL ENTORNO PARA EVITAR FALLOS EN GIT BASH/WINDOWS
 load_dotenv()
-
-# CONFIGURACIÓN DE CLOUDINARY — parsea la URL manualmente
-cloudinary_url = os.getenv("CLOUDINARY_URL")
-if cloudinary_url:
-    parsed = urlparse(cloudinary_url)
-    cloudinary.config(
-    cloud_name = "duihbjpmv",
-    api_key = "154976915816475",
-    api_secret = "ERPF50oeF9xEYe5b6Vv0Fezxga8",
-    secure = True
-)
-
 
 # 2. INICIALIZAMOS LA APP
 app = Flask(__name__)

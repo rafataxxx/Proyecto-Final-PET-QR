@@ -3,13 +3,46 @@ from flask import request, jsonify, Blueprint
 from api.models import db, User, Pet
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
+import cloudinary
 import cloudinary.uploader 
-from api.models import Pet
+
+# 🔥 CONFIGURACIÓN GRABADA EN PIEDRA EN EL ARCHIVO DE ACCIÓN
+cloudinary.config(
+    cloud_name = "duihbjpmv",
+    api_key = "154976915816475",
+    api_secret = "ERPF50oeF9xEYe5b6Vv0Fezxga8",
+    secure = True
+)
+
 from api.qr_generator import generate_pet_qr
 from api.qr_utils import generate_pet_qr_image
 
-
 api = Blueprint('api', __name__)
+
+# --- MISIÓN 1: SUBIDA DE IMÁGENES ---
+@api.route('/upload_image', methods=['POST'])
+def upload_image():
+    if 'image' not in request.files:
+        return jsonify({"msg": "Falta la llave 'image' en el FormData"}), 400
+
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({"msg": "No seleccionaste ningún archivo físico"}), 400
+
+    try:
+        # Ejecutamos la subida usando la configuración directa de arriba
+        upload_result = cloudinary.uploader.upload(file)
+        
+        return jsonify({
+            "msg": "Imagen subida exitosamente",
+            "image_url": upload_result['secure_url']
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "msg": "Cloudinary rechazó el archivo",
+            "error_físico_de_python": str(e)
+        }), 500
 
 @api.route('/signup', methods=['POST'])
 def signup():
@@ -118,35 +151,7 @@ def get_pets_gallery():
             
     return jsonify(gallery), 200
 
-# --- MISIÓN 1: SUBIDA DE IMÁGENES ---
 
-@api.route('/upload_image', methods=['POST'])
-def upload_image():
-    # 1. Validación de caja de archivo
-    if 'image' not in request.files:
-        return jsonify({"msg": "Falta la llave 'image' en el FormData"}), 400
-
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({"msg": "No seleccionaste ningún archivo físico"}), 400
-
-    # 2. Bloque Try / Except para capturar el error exacto
-    try:
-        # Intentamos subir a Cloudinary
-        upload_result = cloudinary.uploader.upload(file)
-        
-        return jsonify({
-            "msg": "Imagen subida exitosamente",
-            "image_url": upload_result['secure_url']
-        }), 200
-
-    except Exception as e:
-        # Captura el error real de Python y se lo manda en bandeja de plata al Front
-        print("ERROR CRÍTICO EN UPLOAD:", str(e))
-        return jsonify({
-            "msg": "El Backend colapsó al procesar el archivo",
-            "error_físico_de_python": str(e)
-        }), 500
     
 # --- RUTA DE PERFIL ---
 @api.route('/profile', methods=['GET'])
