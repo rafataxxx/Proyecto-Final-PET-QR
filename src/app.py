@@ -61,6 +61,9 @@ else:
     # Si por alguna razón extrema no lee el .env, usará esta ruta segura en tu carpeta actual
     app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///mascotas.db"
 
+# 🛠️
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"timeout": 30}}
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
@@ -122,7 +125,9 @@ def serve_any_other_file(path):
 
 # this only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
-    PORT = int(os.environ.get('PORT', 3001))
-    app.run(host='0.0.0.0', port=PORT, debug=True)
-
-    
+    with app.app_context():
+        # Crea físicamente la carpeta de instancia si Render no la tiene
+        os.makedirs(app.instance_path, exist_ok=True)
+        db.create_all()  # Crea las tablas de forma limpia
+        
+    app.run(host='0.0.0.0', port=3001, debug=True)
