@@ -463,6 +463,7 @@ function Dashboard() {
                         }}
                     >
                         {pets.map((pet) => (
+
                             <div
                                 key={pet.id}
                                 style={{
@@ -548,6 +549,7 @@ function Dashboard() {
                                             border: "1px solid #ececec",
                                         }}
                                     >
+
                                         {pet.qr_code_url && (
                                             <>
                                                 <div
@@ -562,7 +564,7 @@ function Dashboard() {
                                                 </div>
 
                                                 <img
-                                                    src={`http://localhost:3001/${pet.qr_code_url}`}
+                                                    src={pet.qr_code_url}
                                                     alt="QR"
                                                     style={{
                                                         width: "185px",

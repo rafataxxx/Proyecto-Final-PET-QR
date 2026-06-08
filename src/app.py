@@ -1,5 +1,6 @@
 import os
 from flask import Flask, request, jsonify, url_for, send_from_directory
+from flask_cors import CORS
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from api.utils import APIException, generate_sitemap
@@ -12,6 +13,9 @@ from dotenv import load_dotenv
 from datetime import timedelta
 from urllib.parse import urlparse
 import cloudinary
+from flask import jsonify
+from api.models import db, Pet
+
 
 # 1. FORZAMOS LA LECTURA DEL ENTORNO PARA EVITAR FALLOS EN GIT BASH/WINDOWS
 load_dotenv()
@@ -30,6 +34,13 @@ if cloudinary_url:
 
 # 2. INICIALIZAMOS LA APP
 app = Flask(__name__)
+
+CORS(
+    app,
+    resources={r"/api/*": {"origins": "*"}},
+    supports_credentials=True
+)
+
 app.url_map.strict_slashes = False
 
 # 3. CONFIGURAMOS JWT
@@ -98,10 +109,7 @@ def sitemap():
 
 @app.route('/static/qr/<path:filename>')
 def serve_qr(filename):
-    return send_from_directory(
-        os.path.join(os.getcwd(), 'static', 'qr'),
-        filename
-    )
+    return send_from_directory('static/qr', filename)
 
 # any other endpoint will try to serve it like a static file
 @app.route('/<path:path>', methods=['GET'])
@@ -116,3 +124,5 @@ def serve_any_other_file(path):
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     app.run(host='0.0.0.0', port=PORT, debug=True)
+
+    

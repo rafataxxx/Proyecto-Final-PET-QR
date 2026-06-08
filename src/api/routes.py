@@ -1,3 +1,4 @@
+import os
 from flask import request, jsonify, Blueprint
 from api.models import db, User, Pet
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
@@ -5,6 +6,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import cloudinary.uploader 
 from api.models import Pet
 from api.qr_generator import generate_pet_qr
+from api.qr_utils import generate_pet_qr_image
+
 
 api = Blueprint('api', __name__)
 
@@ -82,13 +85,18 @@ def forgot_password():
 @api.route('/pet/public/<int:pet_id>', methods=['GET'])
 def get_public_pet(pet_id):
     pet = Pet.query.get(pet_id)
-    
+
     if not pet:
         return jsonify({"msg": "Mascota no encontrada"}), 404
-        
+
     return jsonify({
+        "id": pet.id,
         "name": pet.name,
         "breed": pet.breed,
+        "species": pet.species,
+        "color": pet.color,
+        "age": pet.age,
+        "contact": pet.contact,
         "photo_url": pet.photo_url,
         "clinical_info": pet.clinical_info,
     }), 200
@@ -146,6 +154,8 @@ def get_my_pets():
     pets = Pet.query.filter_by(owner_id=user_id).all()
     return jsonify([pet.serialize() for pet in pets]), 200
 
+from api.qr_utils import generate_pet_qr_image
+
 @api.route('/pets', methods=['POST'])
 @jwt_required()
 def create_pet():
@@ -169,9 +179,17 @@ def create_pet():
     db.session.add(new_pet)
     db.session.commit()
 
-    qr_url = generate_pet_qr(new_pet.id)
+    base_url = os.getenv("BASE_URL", "http://localhost:3001")
 
-    new_pet.qr_code_url = qr_url
+    print("BASE_URL LEIDA:", base_url)
+
+    # link que abrirá el QR
+    qr_link = f"{base_url}/pets/{new_pet.id}"
+
+    # 🔥 generar IMAGEN QR real
+    qr_path = generate_pet_qr_image(qr_link, new_pet.id)
+
+    new_pet.qr_code_url = qr_path
 
     db.session.commit()
 
@@ -270,3 +288,24 @@ def admin_delete_pet(pet_id):
 @api.route('/hello', methods=['GET'])
 def home():
     return jsonify({"msg": "Servidor de Mascota Activo"}), 200
+
+
+
+@api.route('/pet/<int:pet_id>', methods=['GET'])
+def get_pet(pet_id):
+    pet = Pet.query.get(pet_id)
+
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+
+    return jsonify({
+        "id": pet.id,
+        "name": pet.name,
+        "species": pet.species,
+        "breed": pet.breed,
+        "age": pet.age,
+        "color": pet.color,
+        "image_url": pet.image_url,
+        "description": pet.description
+    })
+

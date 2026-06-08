@@ -8,6 +8,8 @@ import Dashboard from "./pages/Dashboard";
 import Mascotas from "./pages/Mascotas";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
+import PetView from "./pages/PetView";
+import PetDetail from "./pages/PetDetail";
 
 function App() {
     return (
@@ -19,7 +21,9 @@ function App() {
                     <Route path="/register" element={<Register />} />
                     <Route path="/mascotas" element={<Mascotas />} />
                     <Route path="/admin/login" element={<AdminLogin />} />
+                    <Route path="/pet/:id" element={<PetView />} />
                     <Route path="/admin" element={<AdminRoute><AdminPanel /></AdminRoute>} />
+                    <Route path="/pets/:id" element={<PetDetail />} />
                     <Route
                         path="/dashboard"
                         element={
