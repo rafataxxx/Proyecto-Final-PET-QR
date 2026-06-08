@@ -20,6 +20,7 @@ from api.qr_utils import generate_pet_qr_image
 api = Blueprint('api', __name__)
 
 # --- MISIÓN 1: SUBIDA DE IMÁGENES ---
+# --- MISIÓN 1: SUBIDA DE IMÁGENES (A PRUEBA DE BALAS) ---
 @api.route('/upload_image', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
@@ -30,8 +31,13 @@ def upload_image():
         return jsonify({"msg": "No seleccionaste ningún archivo físico"}), 400
 
     try:
-        # Ejecutamos la subida usando la configuración directa de arriba
-        upload_result = cloudinary.uploader.upload(file)
+        upload_result = cloudinary.uploader.upload(
+            file,
+            cloud_name="duihbjpmv",
+            api_key="154976915816475",
+            api_secret="ERPF50oeF9xEYe5b6Vv0Fezxga8",
+            secure=True
+        )
         
         return jsonify({
             "msg": "Imagen subida exitosamente",
@@ -39,9 +45,10 @@ def upload_image():
         }), 200
 
     except Exception as e:
+        print("ERROR CRÍTICO:", str(e))
         return jsonify({
-            "msg": "Cloudinary rechazó el archivo",
-            "error_físico_de_python": str(e)
+            "msg": "Error en el servidor al subir a Cloudinary",
+            "error_real": str(e)
         }), 500
 
 @api.route('/signup', methods=['POST'])
