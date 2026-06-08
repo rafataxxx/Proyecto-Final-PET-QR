@@ -532,6 +532,7 @@ function Register() {
                                                 style={inputStyle}
                                             />
                                         </div>
+
                                     </div>
 
                                     <div className="mb-4">

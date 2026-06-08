@@ -137,6 +137,7 @@ def get_public_pet(pet_id):
         "color": pet.color,
         "age": pet.age,
         "contact": pet.contact,
+        "address": pet.address,  # ← NUEVO CAMPO
         "photo_url": pet.photo_url,
         "clinical_info": pet.clinical_info,
     }), 200
@@ -182,7 +183,7 @@ from api.qr_utils import generate_pet_qr_image
 def create_pet():
 
     user_id = get_jwt_identity()
-    body = request.get_json()
+    body = request.get_json() or {}
 
     new_pet = Pet(
         name=body.get('name'),
@@ -192,6 +193,7 @@ def create_pet():
         sex=body.get('sex'),
         age=body.get('age'),
         contact=body.get('contact'),
+        address=body.get('address'),  # ← NUEVO CAMPO
         clinical_info=body.get('clinical_info'),
         photo_url=body.get('photo_url'),
         owner_id=user_id
@@ -200,17 +202,10 @@ def create_pet():
     db.session.add(new_pet)
     db.session.commit()
 
-    # 🔥 IMPORTANTE: usar FRONTEND, no backend
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-    print("FRONTEND_URL LEIDA:", frontend_url)
-
-    # link correcto del QR (React route)
     qr_link = f"{frontend_url}/pets/{new_pet.id}"
 
-    print("QR LINK GENERADO:", qr_link)
-
-    # generar QR en Cloudinary
     qr_path = generate_pet_qr_image(qr_link, new_pet.id)
 
     new_pet.qr_code_url = qr_path
@@ -234,6 +229,7 @@ def update_pet(pet_id):
     pet.sex = body.get('sex', pet.sex)
     pet.age = body.get('age', pet.age)
     pet.contact = body.get('contact', pet.contact)
+    pet.address = body.get('address', pet.address)  # ← NUEVO CAMPO
     pet.clinical_info = body.get('clinical_info', pet.clinical_info)
     pet.photo_url = body.get('photo_url', pet.photo_url)
     db.session.commit()
@@ -289,6 +285,7 @@ def admin_update_pet(pet_id):
     pet.sex = body.get('sex', pet.sex)
     pet.age = body.get('age', pet.age)
     pet.contact = body.get('contact', pet.contact)
+    pet.address = body.get('address', pet.address)  # ← NUEVO CAMPO
     pet.clinical_info = body.get('clinical_info', pet.clinical_info)
     pet.photo_url = body.get('photo_url', pet.photo_url)
     db.session.commit()
@@ -313,8 +310,6 @@ def admin_delete_pet(pet_id):
 def home():
     return jsonify({"msg": "Servidor de Mascota Activo"}), 200
 
-
-
 @api.route('/pet/<int:pet_id>', methods=['GET'])
 def get_pet(pet_id):
     pet = Pet.query.get(pet_id)
@@ -329,7 +324,79 @@ def get_pet(pet_id):
         "breed": pet.breed,
         "age": pet.age,
         "color": pet.color,
-        "image_url": pet.image_url,
-        "description": pet.description
+        "address": pet.address,  # ← NUEVO CAMPO
+        "image_url": pet.image_url if hasattr(pet, 'image_url') else pet.photo_url,
+        "description": pet.description if hasattr(pet, 'description') else pet.clinical_info
     })
 
+# ── GENERAR PDF CON QR ─────────────────────────────────────────────────────────
+@api.route('/pets/<int:pet_id>/qr_pdf', methods=['GET'])
+@jwt_required()
+def generate_qr_pdf(pet_id):
+    user_id = get_jwt_identity()
+    pet = Pet.query.filter_by(id=pet_id, owner_id=user_id).first()
+    
+    if not pet:
+        return jsonify({"msg": "Mascota no encontrada"}), 404
+    
+    if not pet.qr_code_url:
+        return jsonify({"msg": "La mascota no tiene código QR generado"}), 404
+    
+    try:
+        from reportlab.lib.pagesizes import A4
+        from reportlab.pdfgen import canvas
+        from reportlab.lib.utils import ImageReader
+        from io import BytesIO
+        import requests
+        
+        buffer = BytesIO()
+        c = canvas.Canvas(buffer, pagesize=A4)
+        width, height = A4
+        
+        # Título
+        c.setFont("Helvetica-Bold", 20)
+        c.drawString(50, height - 50, f"Código QR - {pet.name}")
+        
+        # Línea separadora
+        c.line(50, height - 70, width - 50, height - 70)
+        
+        # Información de la mascota
+        c.setFont("Helvetica", 12)
+        c.drawString(50, height - 100, f"Nombre: {pet.name}")
+        c.drawString(50, height - 120, f"Especie: {pet.species or 'No especificada'}")
+        c.drawString(50, height - 140, f"Raza: {pet.breed or 'No especificada'}")
+        c.drawString(50, height - 160, f"Color: {pet.color or 'No especificado'}")
+        c.drawString(50, height - 180, f"Sexo: {pet.sex or 'No especificado'}")
+        c.drawString(50, height - 200, f"Edad: {pet.age or 'No especificada'}")
+        c.drawString(50, height - 220, f"Contacto: {pet.contact or 'No especificado'}")
+        c.drawString(50, height - 240, f"Dirección: {pet.address or 'No especificada'}")
+        
+        # Descargar QR desde Cloudinary
+        response = requests.get(pet.qr_code_url)
+        qr_image = ImageReader(BytesIO(response.content))
+        
+        # Posición del QR
+        qr_size = 200
+        qr_x = (width - qr_size) / 2
+        qr_y = height - 500
+        c.drawImage(qr_image, qr_x, qr_y, width=qr_size, height=qr_size)
+        
+        # Texto adicional
+        c.setFont("Helvetica", 10)
+        c.drawString(50, qr_y - 30, "Escanea este código QR para ver la informacion completa")
+        
+        # Finalizar PDF
+        c.save()
+        buffer.seek(0)
+        
+        from flask import send_file
+        return send_file(
+            buffer,
+            as_attachment=True,
+            download_name=f"qr_{pet.name}_{pet.id}.pdf",
+            mimetype='application/pdf'
+        )
+        
+    except Exception as e:
+        print(f"Error generando PDF: {str(e)}")
+        return jsonify({"msg": f"Error al generar PDF: {str(e)}"}), 500
