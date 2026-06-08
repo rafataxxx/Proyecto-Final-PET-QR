@@ -200,14 +200,17 @@ def create_pet():
     db.session.add(new_pet)
     db.session.commit()
 
-    base_url = os.getenv("BASE_URL", "http://localhost:3001")
+    # 🔥 IMPORTANTE: usar FRONTEND, no backend
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-    print("BASE_URL LEIDA:", base_url)
+    print("FRONTEND_URL LEIDA:", frontend_url)
 
-    # link que abrirá el QR
-    qr_link = f"{base_url}/pets/{new_pet.id}"
+    # link correcto del QR (React route)
+    qr_link = f"{frontend_url}/pets/{new_pet.id}"
 
-    # 🔥 generar IMAGEN QR real
+    print("QR LINK GENERADO:", qr_link)
+
+    # generar QR en Cloudinary
     qr_path = generate_pet_qr_image(qr_link, new_pet.id)
 
     new_pet.qr_code_url = qr_path
