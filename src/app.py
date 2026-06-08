@@ -45,10 +45,14 @@ if db_url is not None:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
         "postgres://", "postgresql://")
 else:
-    # Si por alguna razón extrema no lee el .env, usará esta ruta segura en tu carpeta actual
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///mascotas.db"
+    # 🛠️ SOLUCIÓN PARA RENDER: Generamos una ruta absoluta y creamos la carpeta instance de forma segura
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+    INSTANCE_DIR = os.path.join(BASE_DIR, 'instance')
+    os.makedirs(INSTANCE_DIR, exist_ok=True) # Forzamos la creación física de la carpeta
+    
+    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{os.path.join(INSTANCE_DIR, 'mascotas.db')}"
 
-# 🛠️
+# Timeout para evitar bloqueos de hilos
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"timeout": 30}}
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
