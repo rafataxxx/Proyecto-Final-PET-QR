@@ -11,6 +11,7 @@ export default defineConfig({
                 changeOrigin: true,
             },
         },
+        historyApiFallback: true  // 🔥 ESTE ES EL FIX CLAVE
     },
     build: {
         outDir: 'dist'
