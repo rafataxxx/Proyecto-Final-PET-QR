@@ -25,11 +25,11 @@ cloudinary_url = os.getenv("CLOUDINARY_URL")
 if cloudinary_url:
     parsed = urlparse(cloudinary_url)
     cloudinary.config(
-        cloud_name=parsed.hostname,
-        api_key=parsed.username,
-        api_secret=parsed.password,
-        secure=True
-    )
+    cloud_name = "duihbjpmv",
+    api_key = "154976915816475",
+    api_secret = "ERPF50oeF9xEYe5b6Vv0Fezxga8",
+    secure = True
+)
 
 
 # 2. INICIALIZAMOS LA APP
