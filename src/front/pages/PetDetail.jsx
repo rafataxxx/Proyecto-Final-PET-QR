@@ -8,7 +8,7 @@ export default function PetDetail() {
     useEffect(() => {
         console.log("ID:", id);
 
-        fetch(`http://localhost:3001/api/pet/public/${id}`)
+        fetch(`https://sample-service-name-im03.onrender.com/api/pet/public/${id}`)
             .then(res => res.json())
             .then(data => {
                 console.log("DATA:", data);

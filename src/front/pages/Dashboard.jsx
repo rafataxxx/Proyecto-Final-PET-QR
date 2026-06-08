@@ -565,7 +565,7 @@ function Dashboard() {
 
                                                 <img
                                                     src={pet.qr_code_url}
-                                                    alt="QR"
+                                                    alt={pet.name}
                                                     style={{
                                                         width: "185px",
                                                         height: "180px",
