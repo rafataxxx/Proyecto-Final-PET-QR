@@ -39,17 +39,18 @@ ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 
-# 4. CONFIGURACIÓN BLINDADA DE BASE DE DATOS PARA WINDOWS
+# 4. CONFIGURACIÓN BLINDADA DE BASE DE DATOS
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
-        "postgres://", "postgresql://")
+    # 🐘 MODO PRODUCCIÓN: PostgreSQL en la nube
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace("postgres://", "postgresql://")
+    # Limpiamos las opciones para que el motor de Postgres arranque limpio
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {} 
 else:
-    # 🛠️ SOLUCIÓN PARA RENDER: Usamos la carpeta /tmp/ de Linux que SIEMPRE tiene permisos
-    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:////tmp/mascotas.db"
-
-# Timeout para evitar bloqueos de hilos
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"timeout": 30}}
+    # 🪶 MODO DESARROLLO: SQLite en tu PC local
+    app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///mascotas.db"
+    # La medicina (timeout) SOLO se aplica a SQLite
+    app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {"connect_args": {"timeout": 30}}
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
