@@ -66,7 +66,8 @@ with app.app_context():
         "ALTER TABLE pet ADD COLUMN color VARCHAR(50)",
         "ALTER TABLE pet ADD COLUMN sex VARCHAR(20)",
         "ALTER TABLE pet ADD COLUMN age VARCHAR(20)",
-        "ALTER TABLE pet ADD COLUMN contact VARCHAR(100)",
+        "ALTER TABLE pet ADD COLUMN contact VARCHAR(100)"
+        "ALTER TABLE pet ADD COLUMN address VARCHAR(255)",
     ]
     with db.engine.connect() as conn:
         for sql in new_columns:
