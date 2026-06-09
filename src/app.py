@@ -74,8 +74,9 @@ with app.app_context():
             try:
                 conn.execute(db.text(sql))
                 conn.commit()
-            except Exception:
-                pass  # La columna ya existe, ignorar
+            except Exception as e:
+                # la transacción para que Postgres no bloquee las siguientes
+                conn.rollback()
 
 # add the admin
 setup_admin(app)
