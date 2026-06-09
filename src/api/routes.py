@@ -180,41 +180,45 @@ from api.qr_utils import generate_pet_qr_image
 @api.route('/pets', methods=['POST'])
 @jwt_required()
 def create_pet():
+    try:
+        user_id = get_jwt_identity()
+        body = request.get_json()
 
-    user_id = get_jwt_identity()
-    body = request.get_json()
+        new_pet = Pet(
+            name=body.get('name'),
+            breed=body.get('breed'),
+            species=body.get('species'),
+            color=body.get('color'),
+            sex=body.get('sex'),
+            age=body.get('age'),
+            contact=body.get('contact'),
+            clinical_info=body.get('clinical_info'),
+            photo_url=body.get('photo_url'),
+            owner_id=user_id
+        )
 
-    new_pet = Pet(
-        name=body.get('name'),
-        breed=body.get('breed'),
-        species=body.get('species'),
-        color=body.get('color'),
-        sex=body.get('sex'),
-        age=body.get('age'),
-        contact=body.get('contact'),
-        clinical_info=body.get('clinical_info'),
-        photo_url=body.get('photo_url'),
-        owner_id=user_id
-    )
+        db.session.add(new_pet)
+        db.session.commit()
 
-    db.session.add(new_pet)
-    db.session.commit()
+        base_url = os.getenv("BASE_URL", "http://localhost:3001")
+        qr_link = f"{base_url}/pets/{new_pet.id}"
 
-    base_url = os.getenv("BASE_URL", "http://localhost:3001")
+        # 🔥 generar IMAGEN QR real
+        qr_path = generate_pet_qr_image(qr_link, new_pet.id)
 
-    print("BASE_URL LEIDA:", base_url)
+        new_pet.qr_code_url = qr_path
+        db.session.commit()
 
-    # link que abrirá el QR
-    qr_link = f"{base_url}/pets/{new_pet.id}"
+        return jsonify(new_pet.serialize()), 201
 
-    # 🔥 generar IMAGEN QR real
-    qr_path = generate_pet_qr_image(qr_link, new_pet.id)
-
-    new_pet.qr_code_url = qr_path
-
-    db.session.commit()
-
-    return jsonify(new_pet.serialize()), 201
+    except Exception as e:
+        # 🚨 EL ESCUDO: Atrapa el error y deshace cualquier escritura a medias en Postgres
+        db.session.rollback()
+        print("ERROR CRÍTICO AL CREAR MASCOTA:", str(e))
+        return jsonify({
+            "msg": "El servidor falló al guardar la mascota o el QR",
+            "error_exacto": str(e)
+        }), 500
 
 @api.route('/pets/<int:pet_id>', methods=['PUT'])
 @jwt_required()
