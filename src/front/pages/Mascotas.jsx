@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import PetsGallery from "../components/PetsGallery";
+import { useAuth } from "../context/AuthContext";
 
 function MascotasNavbar() {
+    const { token, logout } = useAuth();
+
     return (
         <nav
             style={{
@@ -30,20 +33,53 @@ function MascotasNavbar() {
                     >
                         Inicio
                     </Link>
-                    <Link
-                        to="/login"
-                        style={{
-                            background: "#111",
-                            color: "#fff",
-                            textDecoration: "none",
-                            fontWeight: 600,
-                            padding: "0.45rem 1.2rem",
-                            borderRadius: 10,
-                            fontSize: "0.9rem",
-                        }}
-                    >
-                        Iniciar sesión
-                    </Link>
+                    {token ? (
+                        <>
+                            <Link
+                                to="/dashboard"
+                                style={{
+                                    background: "#111",
+                                    color: "#fff",
+                                    textDecoration: "none",
+                                    fontWeight: 600,
+                                    padding: "0.45rem 1.2rem",
+                                    borderRadius: 10,
+                                    fontSize: "0.9rem",
+                                }}
+                            >
+                                Mi dashboard
+                            </Link>
+                            <button
+                                onClick={logout}
+                                style={{
+                                    background: "none",
+                                    border: "none",
+                                    color: "#999",
+                                    fontWeight: 500,
+                                    fontSize: "0.9rem",
+                                    cursor: "pointer",
+                                    padding: 0,
+                                }}
+                            >
+                                Salir
+                            </button>
+                        </>
+                    ) : (
+                        <Link
+                            to="/login"
+                            style={{
+                                background: "#111",
+                                color: "#fff",
+                                textDecoration: "none",
+                                fontWeight: 600,
+                                padding: "0.45rem 1.2rem",
+                                borderRadius: 10,
+                                fontSize: "0.9rem",
+                            }}
+                        >
+                            Iniciar sesión
+                        </Link>
+                    )}
                 </div>
             </div>
         </nav>
@@ -104,7 +140,7 @@ function Mascotas() {
                     Si encontraste una, escanea su collar para ver sus datos.
                 </p>
                 <Link
-                    to="/login"
+                    to="/register"
                     style={{
                         background: "#ff6b35",
                         color: "#fff",

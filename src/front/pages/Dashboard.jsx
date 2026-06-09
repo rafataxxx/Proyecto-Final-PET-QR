@@ -15,6 +15,7 @@ function PetForm({ initial = {}, loading, error, onSubmit, submitLabel }) {
         sex: initial.sex || "",
         age: initial.age || "",
         contact: initial.contact || "",
+        address: initial.address || "",  // ← NUEVO CAMPO
         clinical_info: initial.clinical_info || "",
         photo: null,
         photoPreview: initial.photo_url || null,
@@ -158,14 +159,17 @@ function PetForm({ initial = {}, loading, error, onSubmit, submitLabel }) {
                 <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
                     Sexo
                 </label>
-                <input
-                    type="text"
+                <select
                     name="sex"
                     value={form.sex}
                     onChange={handleChange}
                     className="form-control form-control-lg"
                     style={inputStyle}
-                />
+                >
+                    <option value="">Seleccionar</option>
+                    <option value="Macho">Macho</option>
+                    <option value="Hembra">Hembra</option>
+                </select>
             </div>
 
             <div className="mb-3">
@@ -194,6 +198,25 @@ function PetForm({ initial = {}, loading, error, onSubmit, submitLabel }) {
                     className="form-control form-control-lg"
                     style={inputStyle}
                 />
+            </div>
+
+            {/* NUEVO CAMPO - Dirección */}
+            <div className="mb-3">
+                <label className="form-label fw-semibold" style={{ fontSize: "0.88rem" }}>
+                    Dirección
+                </label>
+                <input
+                    type="text"
+                    name="address"
+                    value={form.address}
+                    onChange={handleChange}
+                    className="form-control form-control-lg"
+                    style={inputStyle}
+                    placeholder="Calle, número, comuna, ciudad"
+                />
+                <small className="text-muted" style={{ fontSize: "0.75rem" }}>
+                    📍 Dirección completa donde vive la mascota
+                </small>
             </div>
 
             <div className="mb-4">
@@ -302,16 +325,39 @@ function Dashboard() {
     // ── Crear mascota ───────────────────────────────────────────────────────
     const handleCreate = async (e, form) => {
         e.preventDefault();
-        if (!form.name) return setFormError("El nombre es obligatorio");
-        setFormLoading(true); setFormError(null);
+
+        if (!form.name) {
+            setFormError("El nombre es obligatorio");
+            return;
+        }
+
+        setFormLoading(true);
+        setFormError(null);
+
         try {
             let photo_url = null;
-            if (form.photo) photo_url = await uploadPhoto(form.photo);
+
+            if (form.photo) {
+                photo_url = await uploadPhoto(form.photo);
+            }
 
             const res = await apiFetch("/api/pets", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: form.name, breed: form.breed, species: form.species, color: form.color, sex: form.sex, age: form.age, contact: form.contact, clinical_info: form.clinical_info, photo_url }),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: form.name,
+                    breed: form.breed,
+                    species: form.species,
+                    color: form.color,
+                    sex: form.sex,
+                    age: form.age,
+                    contact: form.contact,
+                    address: form.address,  // ← NUEVO CAMPO
+                    clinical_info: form.clinical_info,
+                    photo_url
+                }),
             });
             if (!res) return;
             const data = await res.json();
@@ -320,6 +366,7 @@ function Dashboard() {
             if (!res.ok) throw new Error(data.msg || "Error al crear");
             setPets((p) => [...p, data]);
             setShowAdd(false);
+
             showToast(`¡${data.name} agregado correctamente! 🐾`);
         } catch (err) { setFormError(err.message); }
         finally { setFormLoading(false); }
@@ -328,25 +375,71 @@ function Dashboard() {
     // ── Editar mascota ──────────────────────────────────────────────────────
     const handleEdit = async (e, form) => {
         e.preventDefault();
-        if (!form.name) return setFormError("El nombre es obligatorio");
-        setFormLoading(true); setFormError(null);
+
+        if (!form.name) {
+            setFormError("El nombre es obligatorio");
+            return;
+        }
+
+        setFormLoading(true);
+        setFormError(null);
+
         try {
             let photo_url = editPet.photo_url;
-            if (form.photo) photo_url = await uploadPhoto(form.photo);
+
+            if (form.photo) {
+                photo_url = await uploadPhoto(form.photo);
+            }
 
             const res = await apiFetch(`/api/pets/${editPet.id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name: form.name, breed: form.breed, species: form.species, color: form.color, sex: form.sex, age: form.age, contact: form.contact, clinical_info: form.clinical_info, photo_url }),
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    name: form.name,
+                    breed: form.breed,
+                    species: form.species,
+                    color: form.color,
+                    sex: form.sex,
+                    age: form.age,
+                    contact: form.contact,
+                    address: form.address,  // ← NUEVO CAMPO
+                    clinical_info: form.clinical_info,
+                    photo_url
+                }),
             });
-            if (!res) return;
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.msg || "Error al editar");
-            setPets((p) => p.map((pet) => pet.id === editPet.id ? data : pet));
+
+            if (!res) {
+                throw new Error("No se recibió respuesta del servidor");
+            }
+
+            const text = await res.text();
+
+            let data;
+            try {
+                data = JSON.parse(text);
+            } catch {
+                throw new Error("El servidor no devolvió JSON válido");
+            }
+
+            if (!res.ok) {
+                throw new Error(data.msg || "Error al editar mascota");
+            }
+
+            setPets((p) =>
+                p.map((pet) => (pet.id === editPet.id ? data : pet))
+            );
+
             setEditPet(null);
+
             showToast("Cambios guardados correctamente ✅");
-        } catch (err) { setFormError(err.message); }
-        finally { setFormLoading(false); }
+
+        } catch (err) {
+            setFormError(err.message);
+        } finally {
+            setFormLoading(false);
+        }
     };
 
     // ── Eliminar mascota ────────────────────────────────────────────────────
@@ -362,6 +455,36 @@ function Dashboard() {
             showToast(`${petName} eliminado`, "error");
         } catch (err) { showToast(err.message, "error"); }
         finally { setDeleteLoading(false); }
+    };
+
+    // ── Descargar QR en PDF ───────────────────────────────────────────────────
+
+    const downloadQrPDF = async (petId, petName) => {
+        try {
+            const response = await apiFetch(`/api/pets/${petId}/qr_pdf`, {
+                method: 'GET'
+            });
+
+            if (!response) {
+                showToast("Error al generar el PDF", "error");
+                return;
+            }
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `qr_${petName}_${petId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+
+            showToast(`PDF de ${petName} descargado ✅`);
+        } catch (error) {
+            console.error("Error:", error);
+            showToast("Error al generar el PDF", "error");
+        }
     };
 
     return (
@@ -532,9 +655,11 @@ function Dashboard() {
                                             <div><strong>Sexo:</strong> {pet.sex || "-"}</div>
                                             <div><strong>Edad:</strong> {pet.age || "-"}</div>
                                             <div><strong>Contacto:</strong> {pet.contact || "-"}</div>
+                                            <div><strong>Dirección:</strong> {pet.address || "-"}</div>  {/* ← NUEVO CAMPO */}
                                         </div>
                                     </div>
 
+                                    {/* QR Y BOTONES */}
                                     {/* QR Y BOTONES */}
                                     <div
                                         style={{
@@ -549,7 +674,6 @@ function Dashboard() {
                                             border: "1px solid #ececec",
                                         }}
                                     >
-
                                         {pet.qr_code_url && (
                                             <>
                                                 <div
@@ -573,12 +697,57 @@ function Dashboard() {
                                                         padding: "12px",
                                                         borderRadius: "16px",
                                                         border: "1px solid #e5e7eb",
-                                                        boxShadow:
-                                                            "0 4px 15px rgba(0,0,0,0.05)",
+                                                        boxShadow: "0 4px 15px rgba(0,0,0,0.05)",
                                                     }}
                                                 />
+
+                                                {/* BOTÓN DESCARGAR PDF */}
+                                                <button
+                                                    onClick={() => downloadQrPDF(pet.id, pet.name)}
+                                                    style={{
+                                                        width: "100%",
+                                                        border: "none",
+                                                        background: "#28a745",
+                                                        color: "#fff",
+                                                        padding: "8px 12px",
+                                                        borderRadius: "8px",
+                                                        cursor: "pointer",
+                                                        fontWeight: "500",
+                                                        fontSize: "0.85rem",
+                                                        display: "flex",
+                                                        alignItems: "center",
+                                                        justifyContent: "center",
+                                                        gap: "8px",
+                                                    }}
+                                                >
+                                                    📄 Descargar PDF
+                                                </button>
                                             </>
                                         )}
+
+                                        <Link
+                                            to={`/pets/${pet.id}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            style={{
+                                                width: "100%",
+                                                display: "block",
+                                                textAlign: "center",
+                                                border: "1.5px solid #ff6b35",
+                                                background: "transparent",
+                                                color: "#ff6b35",
+                                                padding: "6px 10px",
+                                                borderRadius: "8px",
+                                                fontWeight: "600",
+                                                fontSize: "0.85rem",
+                                                textDecoration: "none",
+                                                transition: "background 0.2s",
+                                            }}
+                                            onMouseEnter={(e) => { e.currentTarget.style.background = "#fff4f0"; }}
+                                            onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
+                                        >
+                                            Ver perfil público
+                                        </Link>
 
                                         <div
                                             style={{

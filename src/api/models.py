@@ -28,6 +28,7 @@ class Pet(db.Model):
     sex = db.Column(db.String(20))
     age = db.Column(db.String(20))
     contact = db.Column(db.String(100))
+    address = db.Column(db.String(200))  # ← NUEVO CAMPO
     clinical_info = db.Column(db.Text)
     photo_url = db.Column(db.String(255))
     qr_code_url = db.Column(db.String(255))
@@ -43,6 +44,7 @@ class Pet(db.Model):
             "sex": self.sex,
             "age": self.age,
             "contact": self.contact,
+            "address": self.address,  # ← NUEVO CAMPO
             "clinical_info": self.clinical_info,
             "photo_url": self.photo_url,
             "qr_code_url": self.qr_code_url,
