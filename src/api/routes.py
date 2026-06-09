@@ -192,6 +192,7 @@ def create_pet():
             sex=body.get('sex'),
             age=body.get('age'),
             contact=body.get('contact'),
+            address=body.get('address'),
             clinical_info=body.get('clinical_info'),
             photo_url=body.get('photo_url'),
             owner_id=user_id

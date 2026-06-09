@@ -61,21 +61,21 @@ with app.app_context():
     db.create_all()
     # Agrega columnas nuevas si no existen (seguro de correr múltiples veces)
     new_columns = [
-        "ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT FALSE",
-        "ALTER TABLE pet ADD COLUMN species VARCHAR(50)",
-        "ALTER TABLE pet ADD COLUMN color VARCHAR(50)",
-        "ALTER TABLE pet ADD COLUMN sex VARCHAR(20)",
-        "ALTER TABLE pet ADD COLUMN age VARCHAR(20)",
-        "ALTER TABLE pet ADD COLUMN contact VARCHAR(100)"
-        "ALTER TABLE pet ADD COLUMN address VARCHAR(255)",
+        "ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT FALSE;",
+        "ALTER TABLE pet ADD COLUMN species VARCHAR(50);",
+        "ALTER TABLE pet ADD COLUMN color VARCHAR(50);",
+        "ALTER TABLE pet ADD COLUMN sex VARCHAR(20);",
+        "ALTER TABLE pet ADD COLUMN age VARCHAR(20);",
+        "ALTER TABLE pet ADD COLUMN contact VARCHAR(100);",
+        "ALTER TABLE pet ADD COLUMN address VARCHAR(255);"
     ]
     with db.engine.connect() as conn:
         for sql in new_columns:
             try:
                 conn.execute(db.text(sql))
                 conn.commit()
-            except Exception as e:
-                # la transacción para que Postgres no bloquee las siguientes
+            except Exception:
+                # Si choca, pedimos disculpas a Postgres y seguimos adelante
                 conn.rollback()
 
 # add the admin
