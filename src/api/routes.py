@@ -187,7 +187,7 @@ def create_pet():
         db.session.commit()
 
         base_url = os.getenv("BASE_URL", "http://localhost:3001")
-        qr_link = f"{base_url}/pets/{new_pet.id}"
+        qr_link = f"{base_url}/pet/{new_pet.id}"
 
         # 🔥 generar IMAGEN QR real
         qr_path = generate_pet_qr_image(qr_link, new_pet.id)
