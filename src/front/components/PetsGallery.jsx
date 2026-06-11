@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 
 const PAGE_SIZE = 8;
 
@@ -70,17 +69,13 @@ function PetsGallery() {
                         <div className="row g-4">
                             {shown.map((pet) => (
                                 <div className="col-6 col-md-4 col-lg-3" key={pet.id}>
-                                    <Link
-                                        to={`/pets/${pet.id}`}
-                                        className="text-decoration-none pet-card"
+                                    <div
                                         style={{
                                             display: "block",
                                             background: "#fff",
                                             borderRadius: 20,
                                             overflow: "hidden",
                                             boxShadow: "0 4px 24px rgba(0,0,0,0.07)",
-                                            transition: "transform 0.3s ease, box-shadow 0.3s ease",
-                                            cursor: "pointer",
                                         }}
                                     >
                                         <div style={{ height: 200, overflow: "hidden", background: "#f5f5f7" }}>
@@ -94,7 +89,6 @@ function PetsGallery() {
                                                     width: "100%",
                                                     height: "100%",
                                                     objectFit: "cover",
-                                                    transition: "transform 0.4s ease",
                                                 }}
                                             />
                                         </div>
@@ -108,7 +102,7 @@ function PetsGallery() {
                                                 </p>
                                             )}
                                         </div>
-                                    </Link>
+                                    </div>
                                 </div>
                             ))}
                         </div>

@@ -22,9 +22,10 @@ load_dotenv()
 # 2. INICIALIZAMOS LA APP
 app = Flask(__name__)
 
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 CORS(
     app,
-    resources={r"/api/*": {"origins": "*"}},
+    resources={r"/api/*": {"origins": allowed_origins}},
     supports_credentials=True
 )
 
@@ -120,4 +121,4 @@ if __name__ == '__main__':
         os.makedirs(app.instance_path, exist_ok=True)
         db.create_all()  # Crea las tablas de forma limpia
         
-    app.run(host='0.0.0.0', port=3001, debug=True)
+    app.run(host='0.0.0.0', port=3001, debug=os.getenv('FLASK_DEBUG', '0') == '1')

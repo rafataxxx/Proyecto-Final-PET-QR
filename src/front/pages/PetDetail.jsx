@@ -84,21 +84,6 @@ export default function PetDetail() {
                                 ))}
                             </div>
 
-                            {/* Contacto */}
-                            {pet.contact && (
-                                <div style={{ background: "#fff4f0", border: "1px solid #ffe0d4", borderRadius: 16, padding: "1.25rem 1.5rem", marginBottom: "1rem" }}>
-                                    <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#ff6b35", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.35rem" }}>📞 Contacto del dueño</div>
-                                    <div style={{ fontSize: "1.05rem", fontWeight: 600, color: "#222" }}>{pet.contact}</div>
-                                </div>
-                            )}
-
-                            {/* Info clínica */}
-                            {pet.clinical_info && (
-                                <div style={{ background: "#f0f7ff", border: "1px solid #d4e8ff", borderRadius: 16, padding: "1.25rem 1.5rem" }}>
-                                    <div style={{ fontSize: "0.78rem", fontWeight: 700, color: "#3b82f6", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "0.35rem" }}>🩺 Información médica</div>
-                                    <p style={{ fontSize: "0.95rem", color: "#333", lineHeight: 1.7, margin: 0 }}>{pet.clinical_info}</p>
-                                </div>
-                            )}
 
                         </div>
                     </div>

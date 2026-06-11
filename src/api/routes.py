@@ -6,12 +6,11 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import cloudinary
 import cloudinary.uploader 
 
-# 🔥 CONFIGURACIÓN GRABADA EN PIEDRA EN EL ARCHIVO DE ACCIÓN
 cloudinary.config(
-    cloud_name = "duihbjpmv",
-    api_key = "154976915816475",
-    api_secret = "ERPF50oeF9xEYe5b6Vv0Fezxga8",
-    secure = True
+    cloud_name=os.getenv("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.getenv("CLOUDINARY_API_KEY"),
+    api_secret=os.getenv("CLOUDINARY_API_SECRET"),
+    secure=True
 )
 
 from api.qr_generator import generate_pet_qr
@@ -31,25 +30,15 @@ def upload_image():
         return jsonify({"msg": "No seleccionaste ningún archivo físico"}), 400
 
     try:
-        upload_result = cloudinary.uploader.upload(
-            file,
-            cloud_name="duihbjpmv",
-            api_key="154976915816475",
-            api_secret="ERPF50oeF9xEYe5b6Vv0Fezxga8",
-            secure=True
-        )
-        
+        upload_result = cloudinary.uploader.upload(file)
         return jsonify({
             "msg": "Imagen subida exitosamente",
             "image_url": upload_result['secure_url']
         }), 200
 
     except Exception as e:
-        print("ERROR CRÍTICO:", str(e))
-        return jsonify({
-            "msg": "Error en el servidor al subir a Cloudinary",
-            "error_real": str(e)
-        }), 500
+        print("ERROR al subir imagen:", str(e))
+        return jsonify({"msg": "Error en el servidor al subir la imagen"}), 500
 
 @api.route('/signup', methods=['POST'])
 def signup():
@@ -98,7 +87,8 @@ def login():
             "is_admin": user.is_admin
         }), 200
     except Exception as e:
-        return jsonify({"msg": f"Error interno: {str(e)}"}), 500
+        print("ERROR en login:", str(e))
+        return jsonify({"msg": "Error interno del servidor"}), 500
 
 
 @api.route('/forgot-password', methods=['POST'])
@@ -116,11 +106,7 @@ def forgot_password():
         user.password = generate_password_hash(temporal_password)
         db.session.commit()
 
-    # Siempre respondemos igual para no revelar si el email existe
-    return jsonify({
-        "msg": "Si ese correo está registrado, se ha restablecido la contraseña.",
-        "temp_password": "PetQRProvisional123*"
-    }), 200
+    return jsonify({"msg": "Si ese correo está registrado, se ha restablecido la contraseña."}), 200
 
 @api.route('/pet/public/<int:pet_id>', methods=['GET'])
 def get_public_pet(pet_id):
@@ -135,10 +121,9 @@ def get_public_pet(pet_id):
         "breed": pet.breed,
         "species": pet.species,
         "color": pet.color,
+        "sex": pet.sex,
         "age": pet.age,
-        "contact": pet.contact,
         "photo_url": pet.photo_url,
-        "clinical_info": pet.clinical_info,
     }), 200
 
 @api.route('/pets/gallery', methods=['GET'])
@@ -215,11 +200,8 @@ def create_pet():
     except Exception as e:
         # 🚨 EL ESCUDO: Atrapa el error y deshace cualquier escritura a medias en Postgres
         db.session.rollback()
-        print("ERROR CRÍTICO AL CREAR MASCOTA:", str(e))
-        return jsonify({
-            "msg": "El servidor falló al guardar la mascota o el QR",
-            "error_exacto": str(e)
-        }), 500
+        print("ERROR al crear mascota:", str(e))
+        return jsonify({"msg": "El servidor falló al guardar la mascota"}), 500
 
 @api.route('/pets/<int:pet_id>', methods=['PUT'])
 @jwt_required()
@@ -329,9 +311,10 @@ def get_pet(pet_id):
         "name": pet.name,
         "species": pet.species,
         "breed": pet.breed,
+        "sex": pet.sex,
         "age": pet.age,
         "color": pet.color,
-        "image_url": pet.image_url,
-        "description": pet.description
+        "photo_url": pet.photo_url,
+        "contact": pet.contact,
     })
 
